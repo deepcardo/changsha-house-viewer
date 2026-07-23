@@ -5,146 +5,123 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>长沙看房助手 · 2026</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  :root {
-    --primary:#d43d33; --primary-dark:#b52e26; --blue:#2e6be6;
-    --bg:#f4f5f7; --card:#ffffff; --border:#e8e8ec;
-    --text:#26262a; --text2:#6b6b72; --text3:#9a9aa2;
-    --green:#0f9d6c; --orange:#e8830c;
-  }
-  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); padding-bottom:90px; }
-  .container { max-width:1180px; margin:0 auto; padding:0 16px; }
-
-  /* Header */
-  .header { background:linear-gradient(135deg,#c0392b 0%,#e74c3c 100%); color:#fff; padding:28px 0 20px; }
-  .header h1 { font-size:24px; font-weight:700; display:flex; align-items:center; gap:8px; }
-  .header p { font-size:13px; opacity:.85; margin-top:6px; }
-  .header .stats { display:flex; gap:16px; margin-top:14px; flex-wrap:wrap; }
-  .header .stat { background:rgba(255,255,255,.15); border-radius:8px; padding:6px 14px; font-size:13px; }
-  .header .stat b { font-size:16px; }
-
-  /* Tabs */
-  .tabs { background:#fff; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,.04); }
-  .tabs-inner { display:flex; gap:4px; overflow-x:auto; }
-  .tab { padding:14px 18px; font-size:15px; font-weight:600; color:var(--text2); cursor:pointer; border-bottom:3px solid transparent; white-space:nowrap; user-select:none; }
-  .tab.active { color:var(--primary); border-bottom-color:var(--primary); }
-  .tab-panel { display:none; padding:18px 0 30px; }
-  .tab-panel.active { display:block; }
-
-  /* Filter */
-  .filter-card { background:var(--card); border-radius:12px; padding:16px; margin-bottom:16px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
-  .search-row { display:flex; gap:10px; margin-bottom:14px; }
-  .search-input { flex:1; padding:10px 14px; border:1px solid var(--border); border-radius:8px; font-size:14px; outline:none; }
-  .search-input:focus { border-color:var(--primary); }
-  .filter-group { display:flex; align-items:flex-start; gap:10px; padding:7px 0; }
-  .filter-label { flex-shrink:0; font-size:13px; color:var(--text3); font-weight:600; width:44px; padding-top:6px; }
-  .filter-options { display:flex; flex-wrap:wrap; gap:8px; }
-  .chip { padding:5px 13px; font-size:13px; border-radius:16px; background:#f2f3f5; color:var(--text2); cursor:pointer; border:1px solid transparent; user-select:none; transition:all .15s; }
-  .chip:hover { border-color:#d9d9de; }
-  .chip.on { background:#fdeceb; color:var(--primary); border-color:var(--primary); font-weight:600; }
-  .chip.on-blue { background:#e8f0fe; color:var(--blue); border-color:var(--blue); font-weight:600; }
-  .sort-row { display:flex; align-items:center; justify-content:space-between; margin:6px 0 14px; flex-wrap:wrap; gap:8px; }
-  .sort-row .count { font-size:14px; color:var(--text2); }
-  .sort-row .count b { color:var(--primary); font-size:18px; }
-  .sort-select { padding:7px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:#fff; color:var(--text2); outline:none; cursor:pointer; }
-
-  /* Cards */
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px; }
-  .card { background:var(--card); border-radius:12px; padding:16px; box-shadow:0 1px 3px rgba(0,0,0,.05); display:flex; flex-direction:column; gap:10px; transition:transform .15s, box-shadow .15s; }
-  .card:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,.09); }
-  .card-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
-  .card-name { font-size:17px; font-weight:700; }
-  .card-name .fav { cursor:pointer; font-size:16px; margin-left:4px; opacity:.35; }
-  .card-name .fav.on { opacity:1; }
-  .badge { flex-shrink:0; font-size:11px; padding:3px 8px; border-radius:4px; font-weight:600; }
-  .badge-new { background:#e8f0fe; color:var(--blue); }
-  .badge-second { background:#e6f7f0; color:var(--green); }
-  .card-loc { font-size:12px; color:var(--text3); }
-  .card-price { font-size:22px; font-weight:800; color:var(--primary); font-family:Arial,sans-serif; }
-  .card-price small { font-size:12px; font-weight:400; color:var(--text3); }
-  .card-meta { font-size:13px; color:var(--text2); }
-  .card-tags { display:flex; flex-wrap:wrap; gap:6px; }
-  .tag { font-size:11px; padding:2px 8px; border-radius:3px; background:#f2f3f5; color:var(--text2); }
-  .tag-hot { background:#fdeceb; color:var(--primary); }
-  .card-points { font-size:13px; color:var(--text2); line-height:1.6; background:#fafafb; border-radius:8px; padding:10px 12px; }
-  .card-info { display:flex; flex-direction:column; gap:4px; font-size:12.5px; color:var(--text2); }
-  .card-info span { display:flex; gap:6px; align-items:baseline; }
-  .card-actions { display:flex; gap:8px; margin-top:auto; padding-top:6px; border-top:1px dashed var(--border); }
-  .btn-sm { flex:1; padding:8px; font-size:13px; border-radius:8px; border:1px solid var(--border); background:#fff; color:var(--text2); cursor:pointer; transition:all .15s; }
-  .btn-sm:hover { border-color:var(--primary); color:var(--primary); }
-  .btn-sm.in-cmp { background:var(--primary); border-color:var(--primary); color:#fff; }
-
-  /* Compare bar & modal */
-  .cmp-bar { position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid var(--border); box-shadow:0 -4px 16px rgba(0,0,0,.08); padding:12px 16px; display:none; z-index:200; }
-  .cmp-bar.show { display:block; }
-  .cmp-inner { max-width:1180px; margin:0 auto; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-  .cmp-item { background:#f2f3f5; border-radius:8px; padding:6px 12px; font-size:13px; display:flex; align-items:center; gap:6px; }
-  .cmp-item b { cursor:pointer; color:var(--primary); }
-  .cmp-go { margin-left:auto; background:var(--primary); color:#fff; border:none; padding:9px 22px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; }
-  .modal-mask { position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; z-index:300; align-items:flex-start; justify-content:center; overflow-y:auto; padding:30px 12px; }
-  .modal-mask.show { display:flex; }
-  .modal { background:#fff; border-radius:14px; max-width:1000px; width:100%; padding:22px; }
-  .modal h3 { font-size:18px; margin-bottom:14px; }
-  .cmp-table { width:100%; border-collapse:collapse; font-size:13px; }
-  .cmp-table th,.cmp-table td { border:1px solid var(--border); padding:9px 10px; text-align:left; vertical-align:top; line-height:1.5; }
-  .cmp-table th { background:#fafafb; white-space:nowrap; width:88px; color:var(--text2); font-weight:600; }
-  .cmp-table td { min-width:170px; }
-  .cmp-price { color:var(--primary); font-weight:800; font-size:16px; }
-  .modal-close { float:right; background:#f2f3f5; border:none; width:32px; height:32px; border-radius:50%; font-size:16px; cursor:pointer; color:var(--text2); }
-
-  /* Checklist */
-  .cl-progress { background:var(--card); border-radius:12px; padding:16px; margin-bottom:14px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
-  .cl-progress-bar { height:10px; background:#f0f0f3; border-radius:5px; overflow:hidden; margin-top:8px; }
-  .cl-progress-fill { height:100%; background:linear-gradient(90deg,#e74c3c,#f39c12); border-radius:5px; transition:width .3s; }
-  .cl-cat { background:var(--card); border-radius:12px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,.05); overflow:hidden; }
-  .cl-cat-head { padding:14px 16px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; }
-  .cl-cat-head h4 { font-size:15px; }
-  .cl-cat-head .cl-cat-info { font-size:12px; color:var(--text3); }
-  .cl-items { display:none; border-top:1px solid var(--border); }
-  .cl-cat.open .cl-items { display:block; }
-  .cl-item { display:flex; gap:10px; padding:11px 16px; border-bottom:1px solid #f4f4f6; align-items:flex-start; cursor:pointer; }
-  .cl-item:last-child { border-bottom:none; }
-  .cl-item input { margin-top:3px; width:16px; height:16px; accent-color:var(--primary); flex-shrink:0; cursor:pointer; }
-  .cl-item .cl-item-body { flex:1; }
-  .cl-item .cl-item-name { font-size:14px; font-weight:600; }
-  .cl-item .cl-item-desc { font-size:12.5px; color:var(--text2); margin-top:2px; line-height:1.5; }
-  .cl-item.done .cl-item-name { color:var(--text3); text-decoration:line-through; }
-  .btn-outline { background:#fff; border:1px solid var(--border); padding:8px 18px; border-radius:8px; font-size:13px; cursor:pointer; color:var(--text2); }
-  .btn-outline:hover { border-color:var(--primary); color:var(--primary); }
-
-  /* Guide */
-  .guide-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px; }
-  .guide-card { background:var(--card); border-radius:12px; padding:18px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
-  .guide-card h4 { font-size:17px; display:flex; justify-content:space-between; align-items:baseline; }
-  .guide-card h4 span { font-size:16px; color:var(--primary); font-family:Arial; }
-  .guide-row { font-size:13px; color:var(--text2); margin-top:8px; line-height:1.6; }
-  .guide-row b { color:var(--text); }
-
-  /* Calculator */
-  .calc-wrap { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-  @media (max-width:760px){ .calc-wrap{ grid-template-columns:1fr; } }
-  .calc-card { background:var(--card); border-radius:12px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
-  .calc-field { margin-bottom:14px; }
-  .calc-field label { display:block; font-size:13px; color:var(--text2); margin-bottom:6px; font-weight:600; }
-  .calc-field input, .calc-field select { width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-size:15px; outline:none; }
-  .calc-field input:focus { border-color:var(--primary); }
-  .calc-result { background:linear-gradient(135deg,#c0392b,#e74c3c); color:#fff; }
-  .calc-result .big { font-size:34px; font-weight:800; font-family:Arial; margin:4px 0 2px; }
-  .calc-result .sub { font-size:13px; opacity:.85; }
-  .calc-line { display:flex; justify-content:space-between; font-size:14px; padding:9px 0; border-bottom:1px dashed rgba(255,255,255,.25); }
-  .calc-line:last-child { border-bottom:none; }
-  .quick-fill { font-size:12px; color:var(--text3); margin-top:4px; }
-  .quick-fill a { color:var(--blue); cursor:pointer; text-decoration:none; }
-
-  .empty { text-align:center; padding:60px 20px; color:var(--text3); }
-  .empty .ico { font-size:44px; margin-bottom:10px; }
-  .footer-note { text-align:center; font-size:12px; color:var(--text3); margin-top:24px; line-height:1.8; }
-
-  @media (max-width:640px){
-    .header h1 { font-size:20px; }
-    .grid { grid-template-columns:1fr; }
-    .tab { padding:12px 13px; font-size:14px; }
-  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  :root{--primary:#d43d33;--primary-dark:#b52e26;--blue:#2e6be6;--bg:#f4f5f7;--card:#fff;--border:#e8e8ec;--text:#26262a;--text2:#6b6b72;--text3:#9a9aa2;--green:#0f9d6c;--orange:#e8830c}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);padding-bottom:90px}
+  .container{max-width:1180px;margin:0 auto;padding:0 16px}
+  .header{background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff;padding:28px 0 20px}
+  .header h1{font-size:24px;font-weight:700}
+  .header p{font-size:13px;opacity:.85;margin-top:6px}
+  .header .stats{display:flex;gap:16px;margin-top:14px;flex-wrap:wrap}
+  .header .stat{background:rgba(255,255,255,.15);border-radius:8px;padding:6px 14px;font-size:13px}
+  .header .stat b{font-size:16px}
+  .tabs{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  .tabs-inner{display:flex;gap:4px;overflow-x:auto}
+  .tab{padding:14px 18px;font-size:15px;font-weight:600;color:var(--text2);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;user-select:none}
+  .tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+  .tab-panel{display:none;padding:18px 0 30px}
+  .tab-panel.active{display:block}
+  .filter-card{background:var(--card);border-radius:12px;padding:16px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .search-row{display:flex;gap:10px;margin-bottom:14px}
+  .search-input{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none}
+  .search-input:focus{border-color:var(--primary)}
+  .filter-group{display:flex;align-items:flex-start;gap:10px;padding:7px 0}
+  .filter-label{flex-shrink:0;font-size:13px;color:var(--text3);font-weight:600;width:56px;padding-top:6px}
+  .filter-options{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{padding:5px 13px;font-size:13px;border-radius:16px;background:#f2f3f5;color:var(--text2);cursor:pointer;border:1px solid transparent;user-select:none;transition:all .15s}
+  .chip:hover{border-color:#d9d9de}
+  .chip.on{background:#fdeceb;color:var(--primary);border-color:var(--primary);font-weight:600}
+  .sort-row{display:flex;align-items:center;justify-content:space-between;margin:6px 0 14px;flex-wrap:wrap;gap:8px}
+  .sort-row .count{font-size:14px;color:var(--text2)}
+  .sort-row .count b{color:var(--primary);font-size:18px}
+  .sort-select{padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;color:var(--text2);outline:none;cursor:pointer}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+  .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px;transition:transform .15s,box-shadow .15s}
+  .card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.09)}
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .card-name{font-size:17px;font-weight:700}
+  .card-name .fav{cursor:pointer;font-size:16px;margin-left:4px;opacity:.35}
+  .card-name .fav.on{opacity:1}
+  .badge{flex-shrink:0;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600}
+  .badge-new{background:#e8f0fe;color:var(--blue)}
+  .badge-second{background:#e6f7f0;color:var(--green)}
+  .badge-upcoming{background:#fff3e0;color:var(--orange)}
+  .card-loc{font-size:12px;color:var(--text3)}
+  .card-price{font-size:22px;font-weight:800;color:var(--primary);font-family:Arial,sans-serif}
+  .card-price small{font-size:12px;font-weight:400;color:var(--text3)}
+  .card-meta{font-size:13px;color:var(--text2)}
+  .card-tags{display:flex;flex-wrap:wrap;gap:6px}
+  .tag{font-size:11px;padding:2px 8px;border-radius:3px;background:#f2f3f5;color:var(--text2)}
+  .tag-hot{background:#fdeceb;color:var(--primary)}
+  .card-points{font-size:13px;color:var(--text2);line-height:1.6;background:#fafafb;border-radius:8px;padding:10px 12px}
+  .card-info{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--text2)}
+  .card-info span{display:flex;gap:6px;align-items:baseline}
+  .metro-badge{font-size:11px;padding:2px 6px;border-radius:3px;background:#e8f0fe;color:var(--blue);font-weight:600;white-space:nowrap}
+  .metro-near{color:var(--green);font-weight:600}
+  .metro-mid{color:var(--orange)}
+  .metro-far{color:var(--text3)}
+  .card-actions{display:flex;gap:8px;margin-top:auto;padding-top:6px;border-top:1px dashed var(--border)}
+  .btn-sm{flex:1;padding:8px;font-size:13px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text2);cursor:pointer;transition:all .15s}
+  .btn-sm:hover{border-color:var(--primary);color:var(--primary)}
+  .btn-sm.in-cmp{background:var(--primary);border-color:var(--primary);color:#fff}
+  .cmp-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);box-shadow:0 -4px 16px rgba(0,0,0,.08);padding:12px 16px;display:none;z-index:200}
+  .cmp-bar.show{display:block}
+  .cmp-inner{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .cmp-item{background:#f2f3f5;border-radius:8px;padding:6px 12px;font-size:13px;display:flex;align-items:center;gap:6px}
+  .cmp-item b{cursor:pointer;color:var(--primary)}
+  .cmp-go{margin-left:auto;background:var(--primary);color:#fff;border:none;padding:9px 22px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+  .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;z-index:300;align-items:flex-start;justify-content:center;overflow-y:auto;padding:30px 12px}
+  .modal-mask.show{display:flex}
+  .modal{background:#fff;border-radius:14px;max-width:1000px;width:100%;padding:22px}
+  .modal h3{font-size:18px;margin-bottom:14px}
+  .cmp-table{width:100%;border-collapse:collapse;font-size:13px}
+  .cmp-table th,.cmp-table td{border:1px solid var(--border);padding:9px 10px;text-align:left;vertical-align:top;line-height:1.5}
+  .cmp-table th{background:#fafafb;white-space:nowrap;width:88px;color:var(--text2);font-weight:600}
+  .cmp-table td{min-width:170px}
+  .cmp-price{color:var(--primary);font-weight:800;font-size:16px}
+  .modal-close{float:right;background:#f2f3f5;border:none;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;color:var(--text2)}
+  .cl-progress{background:var(--card);border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .cl-progress-bar{height:10px;background:#f0f0f3;border-radius:5px;overflow:hidden;margin-top:8px}
+  .cl-progress-fill{height:100%;background:linear-gradient(90deg,#e74c3c,#f39c12);border-radius:5px;transition:width .3s}
+  .cl-cat{background:var(--card);border-radius:12px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);overflow:hidden}
+  .cl-cat-head{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+  .cl-cat-head h4{font-size:15px}
+  .cl-cat-head .cl-cat-info{font-size:12px;color:var(--text3)}
+  .cl-items{display:none;border-top:1px solid var(--border)}
+  .cl-cat.open .cl-items{display:block}
+  .cl-item{display:flex;gap:10px;padding:11px 16px;border-bottom:1px solid #f4f4f6;align-items:flex-start;cursor:pointer}
+  .cl-item:last-child{border-bottom:none}
+  .cl-item input{margin-top:3px;width:16px;height:16px;accent-color:var(--primary);flex-shrink:0;cursor:pointer}
+  .cl-item .cl-item-body{flex:1}
+  .cl-item .cl-item-name{font-size:14px;font-weight:600}
+  .cl-item .cl-item-desc{font-size:12.5px;color:var(--text2);margin-top:2px;line-height:1.5}
+  .cl-item.done .cl-item-name{color:var(--text3);text-decoration:line-through}
+  .btn-outline{background:#fff;border:1px solid var(--border);padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--text2)}
+  .btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+  .guide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+  .guide-card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .guide-card h4{font-size:17px;display:flex;justify-content:space-between;align-items:baseline}
+  .guide-card h4 span{font-size:16px;color:var(--primary);font-family:Arial}
+  .guide-row{font-size:13px;color:var(--text2);margin-top:8px;line-height:1.6}
+  .guide-row b{color:var(--text)}
+  .calc-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .calc-card{background:var(--card);border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .calc-field{margin-bottom:14px}
+  .calc-field label{display:block;font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:600}
+  .calc-field input,.calc-field select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:15px;outline:none}
+  .calc-field input:focus{border-color:var(--primary)}
+  .calc-result{background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff}
+  .calc-result .big{font-size:34px;font-weight:800;font-family:Arial;margin:4px 0 2px}
+  .calc-result .sub{font-size:13px;opacity:.85}
+  .calc-line{display:flex;justify-content:space-between;font-size:14px;padding:9px 0;border-bottom:1px dashed rgba(255,255,255,.25)}
+  .calc-line:last-child{border-bottom:none}
+  .quick-fill{font-size:12px;color:var(--text3);margin-top:4px}
+  .quick-fill a{color:var(--blue);cursor:pointer;text-decoration:none}
+  .empty{text-align:center;padding:60px 20px;color:var(--text3)}
+  .empty .ico{font-size:44px;margin-bottom:10px}
+  .footer-note{text-align:center;font-size:12px;color:var(--text3);margin-top:24px;line-height:1.8}
+  @media(max-width:760px){.calc-wrap{grid-template-columns:1fr}}
+  @media(max-width:640px){.header h1{font-size:20px}.grid{grid-template-columns:1fr}.tab{padding:12px 13px;font-size:14px}.filter-label{width:46px}}
 </style>
 </head>
 <body>
@@ -152,554 +129,286 @@
 <div class="header">
   <div class="container">
     <h1>🏠 长沙看房助手</h1>
-    <p>32 个精选房源 · 多维筛选 · 现场打勾清单 · 房贷速算（数据：2025年公开信息整理，以案场为准）</p>
+    <p>47 个精选房源 · 地铁筛选 · 现场打勾清单 · 房贷速算（数据：2025-2026年公开信息，以案场为准）</p>
     <div class="stats">
-      <div class="stat">新房 <b>16</b> 盘</div>
-      <div class="stat">二手房 <b>16</b> 小区</div>
-      <div class="stat">单价 <b>4千-2万+</b></div>
-      <div class="stat">清单 <b>58</b> 项</div>
+      <div class="stat">在售新房 <b>21</b></div>
+      <div class="stat">即将开盘 <b>10</b></div>
+      <div class="stat">二手房 <b>16</b></div>
+      <div class="stat">地铁盘 <b>30</b></div>
     </div>
   </div>
 </div>
 
-<div class="tabs">
-  <div class="container tabs-inner">
-    <div class="tab active" data-tab="houses">🏠 房源推荐</div>
-    <div class="tab" data-tab="checklist">✅ 看房清单</div>
-    <div class="tab" data-tab="guide">📊 区域指南</div>
-    <div class="tab" data-tab="calc">🧮 房贷计算</div>
-  </div>
-</div>
+<div class="tabs"><div class="container tabs-inner">
+  <div class="tab active" data-tab="houses">🏠 房源推荐</div>
+  <div class="tab" data-tab="checklist">✅ 看房清单</div>
+  <div class="tab" data-tab="guide">📊 区域指南</div>
+  <div class="tab" data-tab="calc">🧮 房贷计算</div>
+</div></div>
 
 <div class="container">
-
-  <!-- ========== TAB 1: HOUSES ========== -->
-  <div class="tab-panel active" id="panel-houses">
-    <div class="filter-card">
-      <div class="search-row">
-        <input class="search-input" id="kw" placeholder="🔍 搜楼盘名 / 学校 / 卖点关键词，如：长郡、江景、现房…">
-      </div>
-      <div class="filter-group">
-        <div class="filter-label">区域</div>
-        <div class="filter-options" id="f-district"></div>
-      </div>
-      <div class="filter-group">
-        <div class="filter-label">类型</div>
-        <div class="filter-options" id="f-type"></div>
-      </div>
-      <div class="filter-group">
-        <div class="filter-label">单价</div>
-        <div class="filter-options" id="f-price"></div>
-      </div>
-      <div class="filter-group">
-        <div class="filter-label">特色</div>
-        <div class="filter-options" id="f-tag"></div>
-      </div>
-    </div>
-
-    <div class="sort-row">
-      <div class="count" id="result-count"></div>
-      <select class="sort-select" id="sort">
-        <option value="default">综合排序</option>
-        <option value="price-asc">单价从低到高</option>
-        <option value="price-desc">单价从高到低</option>
-        <option value="fav">收藏的排前面</option>
-      </select>
-    </div>
-
-    <div class="grid" id="house-grid"></div>
-    <div class="footer-note">⚠️ 价格为 2025 年 7-9 月平台公开信息，楼盘价格变化较快，实际以各案场为准<br>⭐ 收藏与对比记录仅保存在本机浏览器</div>
+<div class="tab-panel active" id="panel-houses">
+  <div class="filter-card">
+    <div class="search-row"><input class="search-input" id="kw" placeholder="🔍 搜楼盘名 / 学校 / 地铁站名，如：长郡、1号线、洋湖…"></div>
+    <div class="filter-group"><div class="filter-label">区域</div><div class="filter-options" id="f-district"></div></div>
+    <div class="filter-group"><div class="filter-label">类型</div><div class="filter-options" id="f-type"></div></div>
+    <div class="filter-group"><div class="filter-label">单价</div><div class="filter-options" id="f-price"></div></div>
+    <div class="filter-group"><div class="filter-label">地铁线</div><div class="filter-options" id="f-metro-line"></div></div>
+    <div class="filter-group"><div class="filter-label">距地铁</div><div class="filter-options" id="f-metro-dist"></div></div>
+    <div class="filter-group"><div class="filter-label">特色</div><div class="filter-options" id="f-tag"></div></div>
   </div>
-
-  <!-- ========== TAB 2: CHECKLIST ========== -->
-  <div class="tab-panel" id="panel-checklist">
-    <div class="cl-progress">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-        <div><b>看房进度</b> <span id="cl-pct" style="color:var(--primary);font-weight:700;">0%</span> <span id="cl-done" style="font-size:12px;color:var(--text3);"></span></div>
-        <button class="btn-outline" onclick="resetChecklist()">🔄 清空重来</button>
-      </div>
-      <div class="cl-progress-bar"><div class="cl-progress-fill" id="cl-fill" style="width:0%"></div></div>
-      <div style="font-size:12px;color:var(--text3);margin-top:8px;">💡 现场用手机逐项打勾，进度自动保存在本机，关掉页面也不丢</div>
-    </div>
-    <div id="checklist-wrap"></div>
+  <div class="sort-row">
+    <div class="count" id="result-count"></div>
+    <select class="sort-select" id="sort">
+      <option value="default">综合排序</option>
+      <option value="price-asc">单价从低到高</option>
+      <option value="price-desc">单价从高到低</option>
+      <option value="metro">地铁优先(近→远)</option>
+      <option value="fav">收藏的排前面</option>
+    </select>
   </div>
-
-  <!-- ========== TAB 3: GUIDE ========== -->
-  <div class="tab-panel" id="panel-guide">
-    <div class="guide-grid" id="guide-grid"></div>
-    <div class="footer-note">💡 购房五步法：①明确需求预算 → ②锁定 1-2 个区域 → ③同区域看 3-5 盘 → ④用对比表打分 → ⑤白天+晚上各踩一次再定</div>
-  </div>
-
-  <!-- ========== TAB 4: CALC ========== -->
-  <div class="tab-panel" id="panel-calc">
-    <div class="calc-wrap">
-      <div class="calc-card">
-        <div class="calc-field">
-          <label>房屋总价（万元）</label>
-          <input type="number" id="c-total" value="120" oninput="calcLoan()">
-          <div class="quick-fill">快捷：单价 <input style="width:70px;display:inline-block;padding:4px 6px;font-size:12px;" id="c-price" type="number" placeholder="10000"> 元/㎡ × 面积 <input style="width:60px;display:inline-block;padding:4px 6px;font-size:12px;" id="c-area" type="number" placeholder="120"> ㎡ <a onclick="fillTotal()">→ 算总价</a></div>
-        </div>
-        <div class="calc-field">
-          <label>首付比例</label>
-          <select id="c-down" onchange="calcLoan()">
-            <option value="0.15">15%（首套最低）</option>
-            <option value="0.2">20%</option>
-            <option value="0.25">25%</option>
-            <option value="0.3" selected>30%</option>
-            <option value="0.4">40%</option>
-            <option value="0.5">50%</option>
-          </select>
-        </div>
-        <div class="calc-field">
-          <label>贷款年限</label>
-          <select id="c-years" onchange="calcLoan()">
-            <option value="10">10年</option>
-            <option value="15">15年</option>
-            <option value="20">20年</option>
-            <option value="25">25年</option>
-            <option value="30" selected>30年</option>
-          </select>
-        </div>
-        <div class="calc-field">
-          <label>年利率（%）</label>
-          <input type="number" step="0.05" id="c-rate" value="3.05" oninput="calcLoan()">
-          <div class="quick-fill">2025年长沙首套房商贷利率约 3.05%-3.15%，公积金 5 年以上 2.85%</div>
-        </div>
-        <div class="calc-field">
-          <label>还款方式</label>
-          <select id="c-method" onchange="calcLoan()">
-            <option value="acm" selected>等额本息（每月还款相同）</option>
-            <option value="acp">等额本金（逐月递减，总利息少）</option>
-          </select>
-        </div>
-      </div>
-      <div class="calc-card calc-result">
-        <div class="sub" id="r-label">每月月供（等额本息）</div>
-        <div class="big" id="r-month">--</div>
-        <div class="sub">元/月</div>
-        <div style="margin-top:16px;">
-          <div class="calc-line"><span>首付</span><b id="r-down">--</b></div>
-          <div class="calc-line"><span>贷款总额</span><b id="r-loan">--</b></div>
-          <div class="calc-line"><span>利息总额</span><b id="r-interest">--</b></div>
-          <div class="calc-line"><span>还款总额</span><b id="r-all">--</b></div>
-          <div class="calc-line" id="r-extra-line" style="display:none;"><span id="r-extra-label"></span><b id="r-extra"></b></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  <div class="grid" id="house-grid"></div>
+  <div class="footer-note">⚠️ 价格为2025-2026年平台公开信息，楼盘价格变化较快，实际以各案场为准<br>🚇 地铁距离为估算值，具体以实地步行实测为准<br>⭐ 收藏与对比仅保存在本机浏览器</div>
 </div>
 
-<!-- Compare bar -->
-<div class="cmp-bar" id="cmp-bar">
-  <div class="cmp-inner">
-    <span style="font-size:13px;color:var(--text2);font-weight:600;">对比：</span>
-    <span id="cmp-list" style="display:flex;gap:8px;flex-wrap:wrap;"></span>
-    <button class="cmp-go" onclick="openCompare()">开始对比 →</button>
+<div class="tab-panel" id="panel-checklist">
+  <div class="cl-progress">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <div><b>看房进度</b> <span id="cl-pct" style="color:var(--primary);font-weight:700">0%</span> <span id="cl-done" style="font-size:12px;color:var(--text3)"></span></div>
+      <button class="btn-outline" onclick="resetChecklist()">🔄 清空重来</button>
+    </div>
+    <div class="cl-progress-bar"><div class="cl-progress-fill" id="cl-fill" style="width:0%"></div></div>
+    <div style="font-size:12px;color:var(--text3);margin-top:8px">💡 现场用手机逐项打勾，进度自动保存在本机，关掉页面也不丢</div>
   </div>
+  <div id="checklist-wrap"></div>
 </div>
 
-<!-- Compare modal -->
-<div class="modal-mask" id="cmp-modal" onclick="if(event.target===this)closeCompare()">
-  <div class="modal">
-    <button class="modal-close" onclick="closeCompare()">✕</button>
-    <h3>📊 楼盘对比</h3>
-    <div style="overflow-x:auto;"><table class="cmp-table" id="cmp-table"></table></div>
+<div class="tab-panel" id="panel-guide">
+  <div class="guide-grid" id="guide-grid"></div>
+  <div class="footer-note">💡 购房五步法：①明确需求预算 → ②锁定1-2个区域 → ③同区域看3-5盘 → ④用对比表打分 → ⑤白天+晚上各踩一次再定<br>🚇 长沙已运营地铁：1号线(含北延一期)、2号线、3号线、4号线、5号线、6号线<br>在建：2号线西延二期(2026上半年)、7号线一期</div>
+</div>
+
+<div class="tab-panel" id="panel-calc">
+  <div class="calc-wrap">
+    <div class="calc-card">
+      <div class="calc-field"><label>房屋总价（万元）</label><input type="number" id="c-total" value="120" oninput="calcLoan()">
+        <div class="quick-fill">快捷：单价 <input style="width:70px;display:inline-block;padding:4px 6px;font-size:12px" id="c-price" type="number" placeholder="10000"> 元/㎡ × 面积 <input style="width:60px;display:inline-block;padding:4px 6px;font-size:12px" id="c-area" type="number" placeholder="120"> ㎡ <a onclick="fillTotal()">→ 算总价</a></div></div>
+      <div class="calc-field"><label>首付比例</label><select id="c-down" onchange="calcLoan()"><option value="0.15">15%(首套最低)</option><option value="0.2">20%</option><option value="0.25">25%</option><option value="0.3" selected>30%</option><option value="0.4">40%</option><option value="0.5">50%</option></select></div>
+      <div class="calc-field"><label>贷款年限</label><select id="c-years" onchange="calcLoan()"><option value="10">10年</option><option value="15">15年</option><option value="20">20年</option><option value="25">25年</option><option value="30" selected>30年</option></select></div>
+      <div class="calc-field"><label>年利率(%)</label><input type="number" step="0.05" id="c-rate" value="3.05" oninput="calcLoan()"><div class="quick-fill">长沙首套商贷约3.05-3.15%，公积金5年以上2.85%</div></div>
+      <div class="calc-field"><label>还款方式</label><select id="c-method" onchange="calcLoan()"><option value="acm" selected>等额本息</option><option value="acp">等额本金(逐月递减)</option></select></div>
+    </div>
+    <div class="calc-card calc-result">
+      <div class="sub" id="r-label">每月月供（等额本息）</div><div class="big" id="r-month">--</div><div class="sub">元/月</div>
+      <div style="margin-top:16px">
+        <div class="calc-line"><span>首付</span><b id="r-down">--</b></div>
+        <div class="calc-line"><span>贷款总额</span><b id="r-loan">--</b></div>
+        <div class="calc-line"><span>利息总额</span><b id="r-interest">--</b></div>
+        <div class="calc-line"><span>还款总额</span><b id="r-all">--</b></div>
+        <div class="calc-line" id="r-extra-line" style="display:none"><span id="r-extra-label"></span><b id="r-extra"></b></div>
+      </div>
+    </div>
   </div>
 </div>
+</div>
+
+<div class="cmp-bar" id="cmp-bar"><div class="cmp-inner">
+  <span style="font-size:13px;color:var(--text2);font-weight:600">对比：</span>
+  <span id="cmp-list" style="display:flex;gap:8px;flex-wrap:wrap"></span>
+  <button class="cmp-go" onclick="openCompare()">开始对比 →</button>
+</div></div>
+
+<div class="modal-mask" id="cmp-modal" onclick="if(event.target===this)closeCompare()"><div class="modal">
+  <button class="modal-close" onclick="closeCompare()">✕</button>
+  <h3>📊 楼盘对比</h3>
+  <div style="overflow-x:auto"><table class="cmp-table" id="cmp-table"></table></div>
+</div></div>
 
 <script>
-/* ================= DATA ================= */
-const HOUSES = [
-  /* ---- 新房 ---- */
-  {id:1, name:'嘉宇北部湾', district:'望城区', type:'new', pMin:6000, pMax:7000, price:'6000+', area:'130-146㎡', product:'精装现房', audience:'刚需/预算有限', tags:['现房','精装','江景','地铁','学区'], hot:true,
-   school:'雅礼丁江学校(12年一站式)', metro:'地铁1号线北延+云巴(2027通车)', points:'6字头精装现房拎包入住，含全屋品牌家电家具；130㎡毛坯现房4字头；双轨交汇家门口设站，本土实力房企无烂尾风险'},
-  {id:2, name:'湖南建投向江徕', district:'开福区', type:'new', pMin:8000, pMax:8500, price:'8000-8500', area:'98-129㎡', product:'毛坯', audience:'刚需/首套', tags:['国企','地铁'],
-   school:'—', metro:'近地铁1号线', points:'7字头特价房(2#)，千亿国企开发交付有保障，开福区城北板块性价比之选'},
-  {id:3, name:'湘林熙水豪庭', district:'雨花区', type:'new', pMin:7990, pMax:9500, price:'9500(一口价7990)', area:'118-142㎡', product:'毛坯', audience:'刚需/刚改', tags:['地铁','河景'],
-   school:'—', metro:'长沙大道与万家丽路交汇处', points:'紧邻圭塘河风光带，少量一口价房源7990元/㎡，周边生活配套齐全'},
-  {id:4, name:'卓越·朗宋', district:'开福区', type:'new', pMin:10500, pMax:12000, price:'10500-12000', area:'88-116㎡', product:'毛坯小高层', audience:'刚需/学区', tags:['学区','低密','零公摊'],
-   school:'青竹湖湘一外国语学校(扩建校区)', metro:'—', points:'容积率仅2.4低密小高层，0公摊得房率超100%，毗邻65亩栗塘社区公园，现有特价10500'},
-  {id:5, name:'云起虔来', district:'岳麓区', type:'new', pMin:9900, pMax:11000, price:'9900-11000', area:'102-143㎡', product:'毛坯', audience:'刚改/改善', tags:['零公摊','学区','公园'],
-   school:'洋湖南双书包', metro:'—', points:'洋湖南板块负公摊创新盘，整体抬高式场地设计；少量168-169㎡毛坯洋房12500'},
-  {id:6, name:'中欣澜庭序', district:'雨花区', type:'new', pMin:9900, pMax:11300, price:'9900-11300', area:'108-138㎡', product:'毛坯', audience:'刚改/学区', tags:['零公摊','学区','河景'],
-   school:'市一中东山学校(约200m)', metro:'邻近高铁南站', points:'高铁新城黑马，负公摊得房率109%，浏阳河风光带景观'},
-  {id:7, name:'建投象山国际三期', district:'岳麓区', type:'new', pMin:10000, pMax:11000, price:'10000+', area:'109-198㎡', product:'毛坯准现房', audience:'刚改/改善', tags:['学区','现房','公园','零公摊','国企'],
-   school:'木构幼儿园+博才建业+师大附中博才中学(12年)', metro:'—', points:'千亿国企湖南建投，3万方中央公园+7000㎡如意湖，零公摊，楼栋已封顶预计2026年3月前交付'},
-  {id:8, name:'招商揽阅', district:'岳麓区', type:'new', pMin:12500, pMax:14000, price:'12500-14000', area:'117-139㎡', product:'毛坯', audience:'改善/学区', tags:['学区','低密','地铁'],
-   school:'麓谷小学+师大附中高新中学', metro:'地铁1号线延伸线约500m', points:'麓谷板块，容积率2.0绿地率超40%，央企招商蛇口，片区老牌名校'},
-  {id:9, name:'中海寰宇天下', district:'天心区', type:'new', pMin:10000, pMax:12000, price:'10000-12000', area:'143-189㎡', product:'精装', audience:'改善', tags:['精装','国企','地铁','学区'],
-   school:'师大附中双语树人学校', metro:'城铁先锋站500m+地铁1号线尚双塘站800m', points:'央企中海70万方大盘，纯板楼南北通透，友阿奥莱+环宇城商业，工抵带装房1万/㎡起(原最高1.4万)'},
-  {id:10, name:'中国铁建花语江南', district:'天心区', type:'new', pMin:12080, pMax:14000, price:'12080-14000', area:'108-185㎡', product:'毛坯', audience:'刚需/改善', tags:['国企','江景','学区','低密'],
-   school:'青园小学品牌+长郡外国语实验中学南校区', metro:'—', points:'世界500强中国铁建，容积率2.4，距湘江约800m近冬瓜湖公园，原价13500-14000现特价12080'},
-  {id:11, name:'中建桃李九章', district:'芙蓉区', type:'new', pMin:13000, pMax:14500, price:'13000-14500', area:'90-150㎡', product:'毛坯', audience:'改善/学区', tags:['学区','地铁','国企'],
-   school:'大同实验小学+湘郡培粹学校', metro:'地铁6号线农科院农大站约950m', points:'隆平新区，国企中建信和，容积率≤2.7，环境优美'},
-  {id:12, name:'天序1958', district:'天心区', type:'new', pMin:14000, pMax:14000, price:'14000', area:'143-188㎡', product:'毛坯', audience:'纯改善', tags:['国企','低密'],
-   school:'—', metro:'—', points:'省府板块新开铺城市更新片区，只做143/188㎡两个户型，纯板楼户户南北通透，南向四开间'},
-  {id:13, name:'长沙润府C区', district:'天心区', type:'new', pMin:14000, pMax:17500, price:'14000-17500', area:'125-272㎡', product:'毛坯/精装', audience:'高端改善', tags:['学区','零公摊'],
-   school:'一校两址双书包', metro:'—', points:'主城C位鼎流大盘压轴之作，全景舱户型，下沉式会所，一期交付品质惊艳，233-272㎡精装大平层16500-17500'},
-  {id:14, name:'润和大泽湖', district:'望城区', type:'new', pMin:13500, pMax:14500, price:'13500-14500', area:'170-197㎡', product:'精装', audience:'高端改善', tags:['精装','公园','学区','低密'],
-   school:'师大附中大泽湖校区', metro:'—', points:'紧邻3000亩大泽湖湿地公园，1.5万㎡中心园林，得房率110%，全屋智能+中央空调地暖新风，装标超4500元/㎡'},
-  {id:15, name:'嘉信洋湖锦玺', district:'岳麓区', type:'new', pMin:12500, pMax:16000, price:'12500-16000', area:'117-169㎡', product:'毛坯', audience:'高端改善', tags:['低密','地铁','零公摊'],
-   school:'雅礼洋湖英才学校等', metro:'地铁3号线洋湖湿地站约600m', points:'长沙首个新规4.0低密高奢，容积率仅2.07两梯两户纯板楼，得房率最高120%，宜家荟聚+洋湖天街+省妇女儿童医院'},
-  {id:16, name:'润和江璟悦', district:'望城区', type:'new', pMin:8500, pMax:12500, price:'8500-12500', area:'126-276㎡', product:'毛坯', audience:'江景/高端改善', tags:['江景','低密'],
-   school:'—', metro:'—', points:'一线南向看江，离江仅50m观江面530m，滨江湾同款园林公区标准，8.9万方小区园林，276㎡洋房12500'},
-  /* ---- 二手房 ---- */
-  {id:17, name:'北辰三角洲', district:'开福区', type:'second', pMin:13000, pMax:14000, price:'约13000', area:'多户型', product:'二手次新/成熟大盘', audience:'刚需/改善/投资', tags:['学区','地铁','江景'], hot:true,
-   school:'清水塘+长雅中学(双学区)', metro:'地铁1号线贯穿', points:'全市二手房销冠！长沙规模最大小区，浏阳河湘江交汇绝版位置，自建两大商场，房源类型丰富流动性极强'},
-  {id:18, name:'钰龙天下', district:'岳麓区', type:'second', pMin:20000, pMax:22000, price:'20000+', area:'小户型为主', product:'二手学区房', audience:'学区刚需', tags:['学区','地铁'],
-   school:'长郡双语实验学校(顶级)', metro:'近地铁2号线', points:'长郡双语顶级学区，比八方小区便宜，小户型多总价门槛低，流动性强'},
-  {id:19, name:'阳光城尚东湾', district:'雨花区', type:'second', pMin:9000, pMax:9500, price:'约9000', area:'多户型', product:'二手次新', audience:'刚需/刚改', tags:['学区'],
-   school:'配套中小学(双书包)', metro:'近高铁南站/地铁2号线', points:'高铁板块成熟大盘成交量全市第二，房龄新，带双书包均价仅9千左右，性价比高'},
-  {id:20, name:'时代倾城', district:'望城区', type:'second', pMin:7000, pMax:7500, price:'约7000', area:'多户型', product:'二手次新', audience:'河西刚需', tags:['学区','地铁'],
-   school:'长郡双语白石湖', metro:'地铁4号线', points:'望城区销冠，规模大地铁口，有地铁有学校7字头，河西刚需首选'},
-  {id:21, name:'湘江世纪城', district:'开福区', type:'second', pMin:7000, pMax:8000, price:'7000+', area:'多户型', product:'二手成熟大盘', audience:'刚需/预算有限', tags:['学区','地铁','江景'],
-   school:'双学区配套', metro:'地铁1号线', points:'房龄稍老但性价比极高，7字头双学区，临江超大型社区'},
-  {id:22, name:'明昇壹城', district:'雨花区', type:'second', pMin:11000, pMax:13000, price:'11000-13000', area:'多户型', product:'二手次新', audience:'刚改/改善', tags:['学区'],
-   school:'配套中小学(双书包)', metro:'近地铁', points:'高铁新城品质大盘，品质突出，离地铁和商圈都近'},
-  {id:23, name:'魅力之城', district:'雨花区', type:'second', pMin:9000, pMax:10000, price:'9000-10000', area:'多户型', product:'二手次新', audience:'刚需/刚改', tags:['学区','地铁'],
-   school:'配套中小学(双书包)', metro:'地铁2/4号线', points:'高铁板块大型成熟社区，双书包配套，房龄新'},
-  {id:24, name:'中交中央公园', district:'芙蓉区', type:'second', pMin:8000, pMax:10000, price:'8000-10000', area:'多户型', product:'二手次新', audience:'刚需/刚改', tags:['学区','地铁'],
-   school:'大同品牌小学', metro:'地铁6号线', points:'芙蓉区销冠，总建面超百万方，自建龙湖天街商业，房龄新价格友好'},
-  {id:25, name:'怡海星城', district:'天心区', type:'second', pMin:4000, pMax:5000, price:'4000+', area:'多户型', product:'二手小高层', audience:'预算极有限刚需', tags:['低密'], hot:true,
-   school:'民办双书包', metro:'公交为主', points:'天心区断层销冠，4字头全市性价比之王，小高层容积率低环境宜居，位置偏远(南城暮云)'},
-  {id:26, name:'恒大雅苑', district:'开福区', type:'second', pMin:8000, pMax:8500, price:'约8000', area:'多户型', product:'二手', audience:'刚需', tags:['学区','地铁'],
-   school:'明德九年制学校', metro:'双地铁口', points:'广电板块，双地铁口8千左右，配套成熟'},
-  {id:27, name:'江山帝景', district:'岳麓区', type:'second', pMin:8000, pMax:9000, price:'8000-9000', area:'多户型', product:'二手', audience:'刚需/刚改', tags:['学区'],
-   school:'附中博才学士(带初中学位)', metro:'公交为主', points:'含浦板块性价比之选，房龄较新，带初中学位'},
-  {id:28, name:'润和湘江天地', district:'望城区', type:'second', pMin:10000, pMax:11000, price:'10000+', area:'多户型', product:'二手次新', audience:'刚改/改善', tags:['地铁'],
-   school:'配套学校', metro:'地铁4号线月亮岛站(正地铁口)', points:'月亮岛核心次新小区，望城唯一均价破万热门盘，刚改改善之选'},
-  {id:29, name:'龙湖春江天玺', district:'开福区', type:'second', pMin:12000, pMax:13000, price:'12000-13000', area:'多户型', product:'二手次新', audience:'改善', tags:['地铁'],
-   school:'配套学校', metro:'近地铁1号线', points:'次新小区黑马，福元西路商圈热门，龙湖品质物业'},
-  {id:30, name:'中建芙蓉嘉苑', district:'天心区', type:'second', pMin:9000, pMax:10000, price:'9000-10000', area:'多户型', product:'二手', audience:'刚需/学区', tags:['学区','地铁'],
-   school:'仰天湖品牌小学(自建)', metro:'地铁1号线正口', points:'地铁1号线正地铁口，中信-奥莱商圈，自建品牌小学'},
-  {id:31, name:'德奥悦东方', district:'雨花区', type:'second', pMin:10000, pMax:11000, price:'10000-11000', area:'多户型', product:'二手次新', audience:'刚改', tags:[],
-   school:'配套学校', metro:'近地铁', points:'交房两年的次新小区，户型设计现代，环境宜居'},
-  {id:32, name:'保利香槟国际', district:'长沙县', type:'second', pMin:7000, pMax:8000, price:'7000-8000', area:'多户型', product:'二手次新', audience:'刚需', tags:['地铁'],
-   school:'配套学校', metro:'近地铁5号线', points:'长沙县销冠，万家丽北次新小区，自建商场，近地铁'}
+const HOUSES=[
+  // === 在售新房 ===
+  {id:1,name:'嘉宇北部湾',district:'望城区',type:'new',pMin:6000,pMax:7000,price:'6000+',area:'130-146㎡',product:'精装现房',audience:'刚需/预算有限',tags:['现房','精装','江景','学区'],hot:true,school:'雅礼丁江学校(12年一站式)',metroLines:[1],metroStation:'宿龙桥站(1号线北延)',metroDist:800,points:'6字头精装现房拎包入住，含全屋品牌家电家具；130㎡毛坯4字头；双轨交汇(1号线北延+云巴2027通车)'},
+  {id:2,name:'湖南建投向江徕',district:'开福区',type:'new',pMin:8000,pMax:8500,price:'8000-8500',area:'98-129㎡',product:'毛坯',audience:'刚需/首套',tags:['国企','地铁'],school:'—',metroLines:[1],metroStation:'开福区政府站(1号线)',metroDist:500,points:'7字头特价房(2#)，千亿国企，开福区城北性价比之选'},
+  {id:3,name:'湘林熙水豪庭',district:'雨花区',type:'new',pMin:7990,pMax:9500,price:'9500(一口价7990)',area:'118-142㎡',product:'毛坯',audience:'刚需/刚改',tags:['地铁','河景'],school:'—',metroLines:[2],metroStation:'长沙大道站(2号线)',metroDist:400,points:'圭塘河风光带，少量一口价7990元/㎡，2号线长沙大道站400m'},
+  {id:4,name:'卓越·朗宋',district:'开福区',type:'new',pMin:10500,pMax:12000,price:'10500-12000',area:'88-116㎡',product:'毛坯小高层',audience:'刚需/学区',tags:['学区','低密','零公摊'],school:'青竹湖湘一外国语学校(扩建校区)',metroLines:[],metroStation:'—',metroDist:0,points:'容积率2.4低密小高层，0公摊得房率超100%，特价10500'},
+  {id:5,name:'云起虔来',district:'岳麓区',type:'new',pMin:9900,pMax:11000,price:'9900-11000',area:'102-143㎡',product:'毛坯',audience:'刚改/改善',tags:['零公摊','学区','公园'],school:'洋湖南双书包',metroLines:[3],metroStation:'洋湖湿地站(3号线)',metroDist:1200,points:'洋湖南负公摊创新，整体抬高设计；洋房12500'},
+  {id:6,name:'中欣澜庭序',district:'雨花区',type:'new',pMin:9900,pMax:11300,price:'9900-11300',area:'108-138㎡',product:'毛坯',audience:'刚改/学区',tags:['零公摊','学区','河景'],school:'市一中东山学校(200m)',metroLines:[2,4],metroStation:'沙湾公园站(2/4号线)',metroDist:600,points:'高铁新城，负公摊得房率109%，2/4号线沙湾公园600m'},
+  {id:7,name:'建投象山国际三期',district:'岳麓区',type:'new',pMin:10000,pMax:11000,price:'10000+',area:'109-198㎡',product:'毛坯准现房',audience:'刚改/改善',tags:['学区','现房','公园','零公摊','国企'],school:'博才建业+师大附中博才(12年)',metroLines:[3],metroStation:'洋湖湿地站(3号线)',metroDist:1500,points:'千亿国企，3万方中央公园+7000㎡如意湖，2026年3月交付'},
+  {id:8,name:'招商揽阅',district:'岳麓区',type:'new',pMin:12500,pMax:14000,price:'12500-14000',area:'117-139㎡',product:'毛坯',audience:'改善/学区',tags:['学区','低密','地铁'],school:'麓谷小学+师大附中高新中学',metroLines:[1],metroStation:'1号线延伸线(规划)',metroDist:500,points:'麓谷板块容积率2.0绿地率超40%，1号线延伸线500m'},
+  {id:9,name:'中海寰宇天下',district:'天心区',type:'new',pMin:10000,pMax:12000,price:'10000-12000',area:'143-189㎡',product:'精装',audience:'改善',tags:['精装','国企','地铁','学区'],school:'师大附中双语树人学校',metroLines:[1],metroStation:'尚双塘站(1号线)',metroDist:800,points:'央企中海纯板楼南北通透，城铁先锋站500m+1号线800m，工抵1万起'},
+  {id:10,name:'中国铁建花语江南',district:'天心区',type:'new',pMin:12080,pMax:14000,price:'12080-14000',area:'108-185㎡',product:'毛坯',audience:'刚需/改善',tags:['国企','江景','学区','低密'],school:'青园小学+长郡外国语实验中学南校区',metroLines:[1],metroStation:'友谊路站(1号线)',metroDist:900,points:'500强国铁建容积率2.4距湘江800m，特价12080'},
+  {id:11,name:'中建桃李九章',district:'芙蓉区',type:'new',pMin:13000,pMax:14500,price:'13000-14500',area:'90-150㎡',product:'毛坯',audience:'改善/学区',tags:['学区','地铁','国企'],school:'大同实验小学+湘郡培粹学校',metroLines:[6],metroStation:'农科院农大站(6号线)',metroDist:950,points:'隆平新区国企中建信和容积率≤2.7'},
+  {id:12,name:'天序1958',district:'天心区',type:'new',pMin:14000,pMax:14000,price:'14000',area:'143-188㎡',product:'毛坯',audience:'纯改善',tags:['国企','低密'],school:'—',metroLines:[1],metroStation:'省政府站(1号线)',metroDist:1000,points:'省府板块纯板楼户户南北通透南向四开间'},
+  {id:13,name:'长沙润府C区',district:'天心区',type:'new',pMin:14000,pMax:17500,price:'14000-17500',area:'125-272㎡',product:'毛坯/精装',audience:'高端改善',tags:['学区','零公摊'],school:'一校两址双书包',metroLines:[1],metroStation:'省政府站(1号线)',metroDist:800,points:'主城C位鼎流大盘全景舱户型下沉式会所'},
+  {id:14,name:'润和大泽湖',district:'望城区',type:'new',pMin:13500,pMax:14500,price:'13500-14500',area:'170-197㎡',product:'精装',audience:'高端改善',tags:['精装','公园','学区','低密'],school:'师大附中大泽湖校区',metroLines:[4],metroStation:'大泽湖站(4号线北延规划)',metroDist:2000,points:'3000亩湿地1.5万方园林得房率110%装标4500+'},
+  {id:15,name:'嘉信洋湖锦玺',district:'岳麓区',type:'new',pMin:12500,pMax:16000,price:'12500-16000',area:'117-169㎡',product:'毛坯',audience:'高端改善',tags:['低密','地铁','零公摊'],school:'雅礼洋湖英才学校等',metroLines:[3],metroStation:'洋湖湿地站(3号线)',metroDist:600,points:'新规4.0低密容积率2.07得房率120%3号线600m'},
+  {id:16,name:'润和江璟悦',district:'望城区',type:'new',pMin:8500,pMax:12500,price:'8500-12500',area:'126-276㎡',product:'毛坯',audience:'江景/高端改善',tags:['江景','低密'],school:'—',metroLines:[4],metroStation:'月亮岛站(4号线)',metroDist:1500,points:'一线南向看江离江50m530m观江面8.9万方园林'},
+  {id:17,name:'麓谷城市公园',district:'岳麓区',type:'new',pMin:8500,pMax:9500,price:'8500',area:'102-304㎡',product:'毛坯',audience:'刚改/改善',tags:['国企','地铁','公园','学区'],school:'双地铁三学府',metroLines:[2,6],metroStation:'麓谷站(2号线西延)',metroDist:800,points:'国企开发双地铁三学府一公园，2号线西延+6号线'},
+  {id:18,name:'金富江山院',district:'望城区',type:'new',pMin:8480,pMax:9000,price:'8480',area:'117-181㎡',product:'毛坯',audience:'刚需/刚改',tags:['地铁'],school:'—',metroLines:[4],metroStation:'月亮岛站(4号线)',metroDist:600,points:'首付15万起一梯一户实景社区4号线月亮岛600m'},
+  {id:19,name:'长房岭秀时代',district:'雨花区',type:'new',pMin:8500,pMax:9000,price:'8500',area:'115-279㎡',product:'精装现房',audience:'刚改/改善',tags:['现房','国企','学区'],school:'自建学校',metroLines:[5,7],metroStation:'5号线/7号线(在建)',metroDist:800,points:'国企长房现房交付三房全明朝南6.9m景观阳台'},
+  {id:20,name:'嘉信·洋湖锦玉',district:'岳麓区',type:'new',pMin:11000,pMax:12000,price:'11000',area:'112-139㎡',product:'毛坯',audience:'刚改',tags:['地铁','零公摊'],school:'—',metroLines:[3],metroStation:'山塘站(3号线)',metroDist:100,points:'3号线山塘站仅100m！零公摊低密社区'},
+  {id:21,name:'长房欣望府',district:'望城区',type:'new',pMin:6800,pMax:7500,price:'6800',area:'113-169㎡',product:'毛坯',audience:'刚需',tags:['国企','低密'],school:'—',metroLines:[4],metroStation:'望府路站(4号线)',metroDist:1200,points:'国企长房低容积率大阳台高绿化率6800刚需上车'},
+  // === 即将开盘/新开盘 ===
+  {id:22,name:'信达地产·曙光映秀',district:'雨花区',type:'upcoming',pMin:0,pMax:0,price:'待定',area:'105-143㎡',product:'毛坯',audience:'刚改/改善',tags:['零公摊','国企'],hot:true,school:'配套学校',metroLines:[2,5],metroStation:'砂子塘站(2/5号线)',metroDist:500,points:'主城新规4.0迭代美宅！国企开发，2/5号线双地铁500m，配套齐全'},
+  {id:23,name:'雨花城投御峯华境',district:'雨花区',type:'upcoming',pMin:14500,pMax:15500,price:'约14500',area:'115-173㎡',product:'毛坯',audience:'改善',tags:['国企','地铁','学区'],hot:true,school:'四大学校本部聚集',metroLines:[1,3],metroStation:'侯家塘站(1/3号线)',metroDist:200,points:'二环内侯家塘地铁口旁！1/3号线200m，四大学校本部聚集，国企开发'},
+  {id:24,name:'梅溪山境',district:'岳麓区',type:'upcoming',pMin:14000,pMax:15000,price:'待定(周边1.4万)',area:'125㎡',product:'毛坯小高层+别墅',audience:'改善',tags:['学区','低密','地铁','国企'],hot:true,school:'配中小学',metroLines:[6],metroStation:'象鼻窝站(6号线)',metroDist:300,points:'6号线象鼻窝站300m！新规低密小高层+别墅，配中小学，国企开发'},
+  {id:25,name:'湖南建投·领樾府',district:'天心区',type:'upcoming',pMin:15000,pMax:16000,price:'待定(周边1.5万)',area:'132-198㎡',product:'毛坯',audience:'改善',tags:['地铁','零公摊','国企'],hot:true,school:'湘府英才小学北校区旁',metroLines:[1],metroStation:'友谊路站(1号线)',metroDist:100,points:'省府正芯1号线友谊路站100m！零公摊高得房率，千亿国企'},
+  {id:26,name:'绿城金泓文澜樾华',district:'芙蓉区',type:'upcoming',pMin:0,pMax:0,price:'待定',area:'128-226㎡',product:'毛坯',audience:'高端改善',tags:['地铁'],school:'—',metroLines:[2],metroStation:'迎宾路口站(2号线)',metroDist:300,points:'五一大道核心2号线300m，复式大平层，绿城品质'},
+  {id:27,name:'梦想学府1912',district:'岳麓区',type:'upcoming',pMin:10200,pMax:11000,price:'10200',area:'3室/4室',product:'毛坯',audience:'刚改/改善',tags:['低密'],school:'—',metroLines:[3],metroStation:'山塘站(3号线)',metroDist:2000,points:'湘江科学城大王山板块，容积率2低密，7月10日开盘，2027年12月交付'},
+  {id:28,name:'能建天誉府',district:'天心区',type:'upcoming',pMin:12000,pMax:13000,price:'12000',area:'120-173㎡',product:'毛坯',audience:'改善',tags:['地铁','学区'],school:'九年制学校',metroLines:[1],metroStation:'南湖路站(1号线)',metroDist:600,points:'主城南二环1号线600m，配九年制学校，央企能建'},
+  {id:29,name:'中建·博萃府',district:'芙蓉区',type:'upcoming',pMin:13500,pMax:14000,price:'13500',area:'100-133㎡',product:'毛坯',audience:'刚改/改善',tags:['零公摊','学区','国企'],school:'配套学校',metroLines:[6],metroStation:'农科院农大站(6号线)',metroDist:800,points:'新规高得房率110-115%！隆平新区6号线800m，湖湘学府标杆'},
+  {id:30,name:'京盛和府',district:'天心区',type:'upcoming',pMin:9800,pMax:10000,price:'9800(特价9388)',area:'99-195㎡',product:'毛坯',audience:'刚需/刚改',tags:['地铁'],hot:true,school:'—',metroLines:[1],metroStation:'尚双塘站(1号线)',metroDist:600,points:'奥体旁1号线地铁口！限量特价9388元/㎡，准现房'},
+  {id:31,name:'华实长沙领峯',district:'雨花区',type:'upcoming',pMin:10888,pMax:13500,price:'10888(特价)',area:'113-177㎡',product:'精装',audience:'刚改/改善',tags:['精装','地铁'],school:'—',metroLines:[2,4],metroStation:'长沙火车南站(2/4号线)',metroDist:1200,points:'高铁新城4号线+2号线，带装修特价10888，2026年5月开盘'},
+  // === 二手房 ===
+  {id:33,name:'北辰三角洲',district:'开福区',type:'second',pMin:13000,pMax:14000,price:'约13000',area:'多户型',product:'二手次新/成熟大盘',audience:'刚需/改善/投资',tags:['学区','地铁','江景'],hot:true,school:'清水塘+长雅中学(双学区)',metroLines:[1],metroStation:'北辰三角洲站(1号线)',metroDist:200,points:'全市销冠！1号线200m，浏阳河湘江交汇，自建两大商场'},
+  {id:34,name:'钰龙天下',district:'岳麓区',type:'second',pMin:20000,pMax:22000,price:'20000+',area:'小户型为主',product:'二手学区房',audience:'学区刚需',tags:['学区','地铁'],school:'长郡双语实验学校(顶级)',metroLines:[2],metroStation:'梅溪湖东站(2号线)',metroDist:800,points:'长郡双语顶级学区2号线800m小户型多流动性强'},
+  {id:35,name:'阳光城尚东湾',district:'雨花区',type:'second',pMin:9000,pMax:9500,price:'约9000',area:'多户型',product:'二手次新',audience:'刚需/刚改',tags:['学区'],school:'配套中小学(双书包)',metroLines:[2,4],metroStation:'沙湾公园站(2/4号线)',metroDist:600,points:'高铁板块成熟大盘9千双书包2/4号线600m'},
+  {id:36,name:'时代倾城',district:'望城区',type:'second',pMin:7000,pMax:7500,price:'约7000',area:'多户型',product:'二手次新',audience:'河西刚需',tags:['学区','地铁'],school:'长郡双语白石湖',metroLines:[4],metroStation:'月亮岛站(4号线)',metroDist:500,points:'望城销冠4号线500m长郡双语白石湖7字头'},
+  {id:37,name:'湘江世纪城',district:'开福区',type:'second',pMin:7000,pMax:8000,price:'7000+',area:'多户型',product:'二手成熟大盘',audience:'刚需',tags:['学区','地铁','江景'],school:'双学区',metroLines:[1],metroStation:'马厂站(1号线)',metroDist:400,points:'7字头双学区1号线400m临江性价比极高'},
+  {id:38,name:'明昇壹城',district:'雨花区',type:'second',pMin:11000,pMax:13000,price:'11000-13000',area:'多户型',product:'二手次新',audience:'刚改/改善',tags:['学区'],school:'配套中小学(双书包)',metroLines:[2,4],metroStation:'杜花路站(2号线)',metroDist:500,points:'高铁新城品质大盘2号线500m'},
+  {id:39,name:'魅力之城',district:'雨花区',type:'second',pMin:9000,pMax:10000,price:'9000-10000',area:'多户型',product:'二手次新',audience:'刚需/刚改',tags:['学区','地铁'],school:'配套中小学(双书包)',metroLines:[2,4],metroStation:'沙湾公园站(2/4号线)',metroDist:800,points:'高铁板块2/4号线双书包房龄新'},
+  {id:40,name:'中交中央公园',district:'芙蓉区',type:'second',pMin:8000,pMax:10000,price:'8000-10000',area:'多户型',product:'二手次新',audience:'刚需/刚改',tags:['学区','地铁'],school:'大同品牌小学',metroLines:[6],metroStation:'人民东路站(6号线)',metroDist:400,points:'芙蓉区销冠百万方自建龙湖天街6号线400m'},
+  {id:41,name:'怡海星城',district:'天心区',type:'second',pMin:4000,pMax:5000,price:'4000+',area:'多户型',product:'二手小高层',audience:'预算极有限刚需',tags:['低密'],hot:true,school:'民办双书包',metroLines:[],metroStation:'—',metroDist:0,points:'4字头性价比之王小高层容积率低位置偏远(暮云)'},
+  {id:42,name:'恒大雅苑',district:'开福区',type:'second',pMin:8000,pMax:8500,price:'约8000',area:'多户型',product:'二手',audience:'刚需',tags:['学区','地铁'],school:'明德九年制学校',metroLines:[1,3],metroStation:'马厂站(1号线)',metroDist:600,points:'广电板块1/3号线双地铁口8千明德九年制'},
+  {id:43,name:'江山帝景',district:'岳麓区',type:'second',pMin:8000,pMax:9000,price:'8000-9000',area:'多户型',product:'二手',audience:'刚需/刚改',tags:['学区'],school:'附中博才学士(初中学位)',metroLines:[],metroStation:'—',metroDist:0,points:'含浦性价比之选房龄较新带初中学位'},
+  {id:44,name:'润和湘江天地',district:'望城区',type:'second',pMin:10000,pMax:11000,price:'10000+',area:'多户型',product:'二手次新',audience:'刚改/改善',tags:['地铁'],school:'配套学校',metroLines:[4],metroStation:'月亮岛站(4号线)',metroDist:300,points:'月亮岛核心4号线正地铁口300m'},
+  {id:45,name:'龙湖春江天玺',district:'开福区',type:'second',pMin:12000,pMax:13000,price:'12000-13000',area:'多户型',product:'二手次新',audience:'改善',tags:['地铁'],school:'配套学校',metroLines:[1],metroStation:'马厂站(1号线)',metroDist:800,points:'次新黑马1号线800m龙湖品质物业'},
+  {id:46,name:'中建芙蓉嘉苑',district:'天心区',type:'second',pMin:9000,pMax:10000,price:'9000-10000',area:'多户型',product:'二手',audience:'刚需/学区',tags:['学区','地铁'],school:'仰天湖品牌小学(自建)',metroLines:[1],metroStation:'中信广场站(1号线)',metroDist:200,points:'1号线正口200m仰天湖品牌小学中信奥莱商圈'},
+  {id:47,name:'德奥悦东方',district:'雨花区',type:'second',pMin:10000,pMax:11000,price:'10000-11000',area:'多户型',product:'二手次新',audience:'刚改',tags:[],school:'配套学校',metroLines:[2,4],metroStation:'沙湾公园站(2/4号线)',metroDist:1000,points:'次新小区现代户型环境宜居'},
+  {id:48,name:'保利香槟国际',district:'长沙县',type:'second',pMin:7000,pMax:8000,price:'7000-8000',area:'多户型',product:'二手次新',audience:'刚需',tags:['地铁'],school:'配套学校',metroLines:[5],metroStation:'毛竹塘站(5号线)',metroDist:800,points:'万家丽北次新自建商场5号线800m'}
 ];
 
-const DISTRICTS = ['岳麓区','雨花区','天心区','芙蓉区','开福区','望城区','长沙县'];
-const PRICE_RANGES = [
-  {label:'全部', min:0, max:1e9},
-  {label:'≤8千', min:0, max:8000},
-  {label:'8千-1万', min:8000, max:10000},
-  {label:'1万-1.3万', min:10000, max:13000},
-  {label:'1.3万-1.6万', min:13000, max:16000},
-  {label:'≥1.6万', min:16000, max:1e9}
-];
-const TAGS = ['学区','地铁','江景','现房','精装','零公摊','低密','国企','公园','河景'];
+const DISTRICTS=['岳麓区','雨花区','天心区','芙蓉区','开福区','望城区','长沙县'];
+const PRICE_RANGES=[{label:'全部',min:0,max:1e9},{label:'≤8千',min:0,max:8000},{label:'8千-1万',min:8000,max:10000},{label:'1万-1.3万',min:10000,max:13000},{label:'1.3万-1.6万',min:13000,max:16000},{label:'≥1.6万',min:16000,max:1e9}];
+const METRO_LINES=[{line:1,label:'1号线'},  {line:2,label:'2号线'},  {line:3,label:'3号线'},  {line:4,label:'4号线'},  {line:5,label:'5号线'},  {line:6,label:'6号线'},  {line:7,label:'7号线(在建)'}];
+const METRO_DISTS=[{label:'全部',dist:1e9},{label:'≤500m',dist:500},{label:'≤800m',dist:800},{label:'≤1km',dist:1000},{label:'≤1.5km',dist:1500},{label:'有地铁即可',dist:3000}];
+const TAGS=['学区','地铁','江景','现房','精装','零公摊','低密','国企','公园','河景'];
 
-const CHECKLIST = [
-  {cat:'一、基本信息', items:[
-    ['楼盘名称','记录开发商、楼盘全称'],['项目位置','具体地址、所属区/板块'],
-    ['开发商品牌','是否品牌房企/国企/央企，历史交付口碑'],['物业公司','物业公司名称、物业费标准(元/㎡/月)'],
-    ['产权性质','70年住宅/40年商业/公寓，产权年限'],['交房时间','预计交房日期，是否现房/准现房']]},
-  {cat:'二、价格与费用', items:[
-    ['单价','备案价 vs 实际成交价(元/㎡)'],['总价','房屋总价，是否在预算范围内'],
-    ['付款方式','全款/按揭，首付比例，是否支持公积金'],['额外费用','维修基金、契税、物业费、车位费等'],
-    ['优惠活动','特价房、工抵房、团购优惠等'],['得房率','套内面积/建筑面积，是否负公摊/零公摊']]},
-  {cat:'三、户型与空间', items:[
-    ['户型格局','几室几厅几卫，动静分区是否合理'],['建筑面积','实际面积大小，与宣传是否一致'],
-    ['朝向','南向/东南向为佳，采光面宽度'],['层高','标准层高≥2.8m，LOFT/复式另算'],
-    ['通透性','南北通透？户型是否有暗卫/暗厨'],['阳台','阳台数量、面积、是否赠送面积'],
-    ['收纳空间','是否有玄关柜、衣帽间、储物间规划']]},
-  {cat:'四、楼层与楼栋', items:[
-    ['所在楼层','低层/中层/高层，视野遮挡情况'],['楼栋位置','是否临街/临车库出入口'],
-    ['梯户比','几梯几户，高峰期等电梯时间'],['容积率','越低越舒适，一般≤2.5为宜'],
-    ['楼间距','是否影响采光和隐私'],['车位配比','车位数量/户数，是否人车分流']]},
-  {cat:'五、采光与通风', items:[
-    ['日照时长','冬至日有效日照≥2小时(高层关注)'],['采光面','主要房间朝南数量，窗户大小'],
-    ['通风条件','是否有穿堂风，厨卫是否有窗'],['周边遮挡','前后高楼遮挡，未来规划是否有新建']]},
-  {cat:'六、周边配套', items:[
-    ['轨道交通','距离最近地铁站步行距离(理想≤800m)'],['公交线路','附近公交站线路数量及覆盖方向'],
-    ['商业配套','超市、商场、菜市场步行可达性'],['教育资源','对口小学/中学，是否品牌名校，距离远近'],
-    ['医疗资源','附近医院等级及距离'],['公园绿地','附近公园、湘江/浏阳河景观资源'],
-    ['生活便利','餐饮、便利店、银行等日常配套']]},
-  {cat:'七、小区环境', items:[
-    ['绿化率','≥30%为佳，实地看园林规划'],['公共设施','儿童游乐区、健身设施、社区活动空间'],
-    ['架空层','是否有架空层活动空间，功能规划'],['地下车库','车库品质、入口设计、充电桩配比'],
-    ['归家动线','入户大堂品质、电梯厅设计、门禁系统'],['外立面','真石漆/铝板/石材，质感如何']]},
-  {cat:'八、噪音与环境', items:[
-    ['噪音来源','是否临主干道/高架/铁路/高铁线'],['噪音实测','白天/晚间噪音水平，关窗后效果'],
-    ['空气环境','附近是否有工厂/垃圾站/污水处理厂'],['施工影响','周边在建工地，未来噪音/扬尘']]},
-  {cat:'九、不利因素', items:[
-    ['不利因素公示','开发商是否公示(配电房、垃圾房等)'],['户型缺陷','奇葩户型、拐角过多、浪费面积'],
-    ['产权瑕疵','是否有抵押、查封、一房多卖风险'],['维权历史','该楼盘/开发商是否有维权纠纷记录']]},
-  {cat:'十、交付与品质', items:[
-    ['交付标准','毛坯/精装，精装标准(元/㎡)，品牌清单'],['样板间差异','样板间与实际交付的差异'],
-    ['施工进度','实地看施工进度，是否与计划一致'],['已交付品质','如有前期交付，看已交付楼栋品质']]},
-  {cat:'十一、投资价值', items:[
-    ['区域规划','政府规划利好(地铁新线/商业/产业)'],['价格对比','与周边二手房/新房价格对比，是否倒挂'],
-    ['流通性','该板块/小区二手房成交量及流通速度'],['租金回报','预估租金水平及租售比']]}
+const CHECKLIST=[
+  {cat:'一、基本信息',items:[['楼盘名称','记录开发商、楼盘全称'],['项目位置','具体地址、所属区/板块'],['开发商品牌','是否品牌房企/国企/央企，历史交付口碑'],['物业公司','物业公司名称、物业费(元/㎡/月)'],['产权性质','70年住宅/40年商业/公寓'],['交房时间','预计交房日期，是否现房/准现房']]},
+  {cat:'二、价格与费用',items:[['单价','备案价 vs 实际成交价'],['总价','是否在预算范围内'],['付款方式','全款/按揭，首付比例，是否支持公积金'],['额外费用','维修基金、契税、物业费、车位费'],['优惠活动','特价房、工抵房、团购优惠'],['得房率','套内面积/建筑面积，是否负公摊']]},
+  {cat:'三、户型与空间',items:[['户型格局','几室几厅几卫，动静分区'],['建筑面积','与宣传是否一致'],['朝向','南向/东南向为佳'],['层高','标准层高≥2.8m'],['通透性','南北通透？是否有暗卫/暗厨'],['阳台','阳台数量、面积、是否赠送'],['收纳空间','玄关柜、衣帽间、储物间']]},
+  {cat:'四、楼层与楼栋',items:[['所在楼层','低/中/高层，视野遮挡'],['楼栋位置','是否临街/临车库出入口'],['梯户比','几梯几户'],['容积率','≤2.5为宜'],['楼间距','采光和隐私'],['车位配比','车位数量/户数，人车分流']]},
+  {cat:'五、采光与通风',items:[['日照时长','冬至日有效日照≥2小时'],['采光面','朝南数量，窗户大小'],['通风条件','穿堂风，厨卫是否有窗'],['周边遮挡','前后高楼遮挡，未来规划']]},
+  {cat:'六、周边配套',items:[['轨道交通','最近地铁站步行距离(≤800m为优)'],['公交线路','线路数量及覆盖方向'],['商业配套','超市商场菜市场'],['教育资源','对口学校是否名校'],['医疗资源','医院等级及距离'],['公园绿地','公园/湘江景观'],['生活便利','餐饮便利店银行']]},
+  {cat:'七、小区环境',items:[['绿化率','≥30%为佳'],['公共设施','儿童区健身设施'],['架空层','活动空间功能规划'],['地下车库','品质入口充电桩'],['归家动线','入户大堂门禁系统'],['外立面','真石漆/铝板/石材']]},
+  {cat:'八、噪音与环境',items:[['噪音来源','临主干道/高架/铁路'],['噪音实测','白天/晚间水平'],['空气环境','附近工厂/垃圾站'],['施工影响','在建工地未来影响']]},
+  {cat:'九、不利因素',items:[['不利因素公示','配电房垃圾房等'],['户型缺陷','奇葩户型拐角多'],['产权瑕疵','抵押查封风险'],['维权历史','开发商维权纠纷']]},
+  {cat:'十、交付与品质',items:[['交付标准','毛坯/精装，精装品牌清单'],['样板间差异','非交付标准部分'],['施工进度','与计划是否一致'],['已交付品质','前期交付实地品质']]},
+  {cat:'十一、投资价值',items:[['区域规划','地铁新线/商业/产业利好'],['价格对比','与周边二手/新房是否倒挂'],['流通性','板块成交量及流通速度'],['租金回报','预估租金及租售比']]}
 ];
 
-const GUIDE = [
-  {name:'岳麓区', price:'13,674', feat:'长沙教育+科技核心，高校集中，配套成熟，房价领跑全市', areas:'梅溪湖 / 洋湖 / 麓谷 / 市府', who:'有娃家庭、养老人群、改善型', advice:'宜居天花板，教育+生态双标杆，预算充足首选。梅溪湖配套最成熟，洋湖低密宜居，麓谷性价比高。'},
-  {name:'雨花区', price:'12,627', feat:'经济总量第一区，交通便利商业完善，高铁新城活跃', areas:'高铁新城 / 红星板块 / 武广新城', who:'刚需、商务出差人士、首套', advice:'交通枢纽+商业中心，高铁新城是成交量最大板块，性价比突出，9千-1.1万有双书包次新盘。'},
-  {name:'天心区', price:'13,373', feat:'省府板块加持，湘江沿岸生态资源优越，文旅丰富', areas:'省府板块 / 新开铺 / 暮云', who:'改善型家庭、年轻上班族', advice:'长株潭一体化加速，2029全运会主会场，南部融城潜力大。暮云有4字头极致性价比。'},
-  {name:'芙蓉区', price:'13,025', feat:'面积最小但经济密度最高，老城配套成熟，新房少', areas:'隆平新区 / 浏阳河东', who:'注重生活便利的购房者', advice:'隆平新区发展潜力大(种业硅谷)，浏阳河东房龄新价格友好，8千-1万可上车。'},
-  {name:'开福区', price:'12,178', feat:'文旅生态资源突出，房价平稳，烟火气浓', areas:'青竹湖 / 福元西路 / 广电 / 北辰', who:'注重居住环境、预算有限刚需', advice:'北辰三角洲是全市成交量最大小区(1.3万)，湘江世纪城7字头双学区性价比极高。'},
-  {name:'望城区', price:'8,317', feat:'房价最低，月亮岛/大泽湖板块快速崛起', areas:'月亮岛 / 金星北 / 大泽湖 / 高铁西城', who:'预算有限刚需、河西上班族', advice:'刚需友好区，5-8千可上车，月亮岛地铁4号线直达。大泽湖板块正在崛起，需耐心等配套。'},
-  {name:'长沙县', price:'8,394', feat:'星沙刚需盘集中，价格洼地，4字头起步', areas:'星沙城区 / 万家丽北', who:'预算极有限刚需', advice:'万家丽北板块次新多，地铁5号线经过，7-8千买次新带商场，性价比突出。'}
+const GUIDE=[
+  {name:'岳麓区',price:'13,674',feat:'教育+科技核心，配套成熟',areas:'梅溪湖 / 溪湖 / 麓谷 / 市府',who:'有娃家庭/改善型',advice:'宜居天花板，1/2/3/6号线覆盖。梅溪湖2号线，洋湖3号线，麓谷2号线西延+6号线。'},
+  {name:'雨花区',price:'12,627',feat:'交通枢纽+商业中心',areas:'高铁新城 / 红星 / 武广新城',who:'刚需/商务出差/首套',advice:'2/4/5号线密集覆盖，高铁南站直达。9千-1.1万双书包次新盘性价比高。'},
+  {name:'天心区',price:'13,373',feat:'省府板块+湘江生态',areas:'省府 / 新开铺 / 暮云',who:'改善型/年轻上班族',advice:'1号线贯穿，长株潭一体化。暮云4字头极致性价比。'},
+  {name:'芙蓉区',price:'13,025',feat:'经济密度最高，配套成熟',areas:'隆平新区 / 浏阳河东',who:'注重便利的购房者',advice:'6号线+2号线覆盖，隆平新区6号线农大站，8千-1万可上车。'},
+  {name:'开福区',price:'12,178',feat:'文旅生态+烟火气浓',areas:'青竹湖 / 福元西路 / 北辰',who:'注重环境/刚需',advice:'1号线贯穿，北辰1号线200m全市销冠，湘江世纪城1号线400m7字头双学区。'},
+  {name:'望城区',price:'8,317',feat:'房价最低刚需友好',areas:'月亮岛 / 金星北 / 大泽湖',who:'预算有限刚需',advice:'4号线月亮岛5-8千可上车。大泽湖正在崛起4号线北延规划。'},
+  {name:'长沙县',price:'8,394',feat:'价格洼地4字头起步',areas:'星沙 / 万家丽北',who:'预算极有限刚需',advice:'3/5号线覆盖，7-8千买次新带商场5号线800m性价比突出。'}
 ];
 
-/* ================= STATE ================= */
-let state = { district:'全部', type:'全部', priceIdx:0, tags:new Set(), kw:'', sort:'default' };
-let favs = new Set(JSON.parse(localStorage.getItem('cs_favs')||'[]'));
-let cmp = JSON.parse(localStorage.getItem('cs_cmp')||'[]');
-let clState = JSON.parse(localStorage.getItem('cs_checklist')||'{}');
+/* === STATE === */
+let state={district:'全部',type:'全部',priceIdx:0,metroLine:0,metroDistIdx:0,tags:new Set(),kw:'',sort:'default'};
+let favs=new Set(JSON.parse(localStorage.getItem('cs_favs')||'[]'));
+let cmp=JSON.parse(localStorage.getItem('cs_cmp')||'[]');
+let clState=JSON.parse(localStorage.getItem('cs_checklist')||'{}');
 
-/* ================= TABS ================= */
-document.querySelectorAll('.tab').forEach(t=>{
-  t.onclick = ()=>{
-    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(x=>x.classList.remove('active'));
-    t.classList.add('active');
-    document.getElementById('panel-'+t.dataset.tab).classList.add('active');
-  };
-});
+/* === TABS === */
+document.querySelectorAll('.tab').forEach(t=>{t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab-panel').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.getElementById('panel-'+t.dataset.tab).classList.add('active')}});
 
-/* ================= FILTERS ================= */
-function buildChips(elId, items, activeVal, onPick, multi=false){
-  const el = document.getElementById(elId); el.innerHTML='';
+/* === FILTERS === */
+function buildChips(elId,items,activeVal,onPick,multi=false){
+  const el=document.getElementById(elId);el.innerHTML='';
   items.forEach(it=>{
-    const label = typeof it==='string'? it : it.label;
-    const c = document.createElement('span'); c.className='chip'; c.textContent=label;
-    const isOn = multi ? state.tags.has(label) : (activeVal===label || (typeof it==='object' && items.indexOf(it)===state.priceIdx));
-    if(isOn) c.classList.add('on');
-    c.onclick = ()=>{ onPick(it, label); };
+    const label=typeof it==='string'?it:it.label;
+    const c=document.createElement('span');c.className='chip';c.textContent=label;
+    const isOn=multi?state.tags.has(label):(activeVal===label||(typeof it==='object'&&items.indexOf(it)===state.priceIdx));
+    if(isOn)c.classList.add('on');
+    c.onclick=()=>{onPick(it,label)};
     el.appendChild(c);
   });
 }
 function renderFilters(){
-  buildChips('f-district', ['全部',...DISTRICTS], state.district, (it,l)=>{ state.district=l; renderAll(); });
-  buildChips('f-type', ['全部','新房','二手房'], state.type, (it,l)=>{ state.type=l; renderAll(); });
-  buildChips('f-price', PRICE_RANGES, '', (it)=>{ state.priceIdx=PRICE_RANGES.indexOf(it); renderAll(); });
-  buildChips('f-tag', TAGS, '', (it,l)=>{ state.tags.has(l)? state.tags.delete(l) : state.tags.add(l); renderAll(); }, true);
+  buildChips('f-district',['全部',...DISTRICTS],state.district,(it,l)=>{state.district=l;renderAll()});
+  buildChips('f-type',['全部','新房','即将开盘','二手房'],state.type,(it,l)=>{state.type=l;renderAll()});
+  buildChips('f-price',PRICE_RANGES,'',it=>{state.priceIdx=PRICE_RANGES.indexOf(it);renderAll()});
+  buildChips('f-metro-line',[{line:0,label:'全部'},...METRO_LINES],'',it=>{state.metroLine=it.line;renderAll()});
+  buildChips('f-metro-dist',METRO_DISTS,'',it=>{state.metroDistIdx=METRO_DISTS.indexOf(it);renderAll()});
+  buildChips('f-tag',TAGS,'',(it,l)=>{state.tags.has(l)?state.tags.delete(l):state.tags.add(l);renderAll()},true);
 }
-document.getElementById('kw').oninput = e=>{ state.kw=e.target.value.trim(); renderHouses(); };
-document.getElementById('sort').onchange = e=>{ state.sort=e.target.value; renderHouses(); };
+document.getElementById('kw').oninput=e=>{state.kw=e.target.value.trim();renderHouses()};
+document.getElementById('sort').onchange=e=>{state.sort=e.target.value;renderHouses()};
 
-/* ================= HOUSE LIST ================= */
-function matchType(h){ return state.type==='全部' || (state.type==='新房'&&h.type==='new') || (state.type==='二手房'&&h.type==='second'); }
-function matchPrice(h){ const r=PRICE_RANGES[state.priceIdx]; return r.min===0&&r.max===1e9 ? true : (h.pMin<=r.max && h.pMax>=r.min); }
+/* === HOUSE LIST === */
+function matchType(h){
+  if(state.type==='全部')return true;
+  if(state.type==='新房')return h.type==='new';
+  if(state.type==='即将开盘')return h.type==='upcoming';
+  return h.type==='second';
+}
+function matchPrice(h){const r=PRICE_RANGES[state.priceIdx];return r.min===0&&r.max===1e9?true:(h.pMin<=r.max&&h.pMax>=r.min)}
+function matchMetroLine(h){return state.metroLine===0||h.metroLines.includes(state.metroLine)}
+function matchMetroDist(h){const d=METRO_DISTS[state.metroDistIdx].dist;return d===1e9?true:(h.metroDist>0&&h.metroDist<=d)}
 function matchKw(h){
-  if(!state.kw) return true;
-  const k = state.kw.toLowerCase();
-  return [h.name,h.district,h.school,h.metro,h.points,h.product,h.audience,h.tags.join('')].join(' ').toLowerCase().includes(k);
+  if(!state.kw)return true;
+  const k=state.kw.toLowerCase();
+  return [h.name,h.district,h.school,h.metroStation,h.points,h.product,h.audience,h.tags.join('')].join(' ').toLowerCase().includes(k);
 }
 function getFiltered(){
-  let list = HOUSES.filter(h =>
-    (state.district==='全部'||h.district===state.district) &&
-    matchType(h) && matchPrice(h) &&
-    [...state.tags].every(t=>h.tags.includes(t)) && matchKw(h)
-  );
-  if(state.sort==='price-asc') list.sort((a,b)=>a.pMin-b.pMin);
-  else if(state.sort==='price-desc') list.sort((a,b)=>b.pMin-a.pMin);
-  else if(state.sort==='fav') list.sort((a,b)=>(favs.has(b.id)?1:0)-(favs.has(a.id)?1:0));
+  let list=HOUSES.filter(h=>(state.district==='全部'||h.district===state.district)&&matchType(h)&&matchPrice(h)&&matchMetroLine(h)&&matchMetroDist(h)&&[...state.tags].every(t=>h.tags.includes(t))&&matchKw(h));
+  if(state.sort==='price-asc')list.sort((a,b)=>a.pMin-b.pMin);
+  else if(state.sort==='price-desc')list.sort((a,b)=>b.pMin-a.pMin);
+  else if(state.sort==='metro')list.sort((a,b)=>(a.metroDist>0?a.metroDist:9999)-(b.metroDist>0?b.metroDist:9999));
+  else if(state.sort==='fav')list.sort((a,b)=>(favs.has(b.id)?1:0)-(favs.has(a.id)?1:0));
   return list;
 }
+function metroDistClass(d){return d<=500?'metro-near':d<=800?'metro-mid':d<=1500?'metro-mid':'metro-far'}
+function metroDistText(d){return d===0?'无地铁':d<=100?d+'m(地铁口旁)':d<=500?d+'m(步行'+Math.round(d/80)+'分钟)':d<=800?d+'m(步行'+Math.round(d/80)+'分钟)':d<=1500?d+'m(步行'+Math.round(d/80)+'分钟)':d+'m'}
 function renderHouses(){
-  const list = getFiltered();
-  document.getElementById('result-count').innerHTML = `共 <b>${list.length}</b> 套符合条件`;
-  const grid = document.getElementById('house-grid');
-  if(!list.length){
-    grid.innerHTML = `<div class="empty" style="grid-column:1/-1;"><div class="ico">🔍</div>没有符合条件的房源<br><small>试试放宽价格区间或减少特色标签</small></div>`;
-    return;
-  }
-  grid.innerHTML = list.map(h=>{
-    const inCmp = cmp.includes(h.id);
-    const tagsHtml = h.tags.map(t=>`<span class="tag">${t}</span>`).join('') + (h.hot?'<span class="tag tag-hot">🔥 热销</span>':'');
-    return `<div class="card">
-      <div class="card-top">
-        <div>
-          <div class="card-name">${h.name}<span class="fav ${favs.has(h.id)?'on':''}" onclick="toggleFav(${h.id})" title="收藏">⭐</span></div>
-          <div class="card-loc">📍 ${h.district} · ${h.audience}</div>
-        </div>
-        <span class="badge ${h.type==='new'?'badge-new':'badge-second'}">${h.type==='new'?'新房':'二手'}</span>
-      </div>
-      <div><span class="card-price">${h.price}<small> 元/㎡</small></span></div>
-      <div class="card-meta">${h.area} · ${h.product}</div>
-      <div class="card-tags">${tagsHtml}</div>
-      <div class="card-points">${h.points}</div>
-      <div class="card-info">
-        <span>🎓 ${h.school}</span>
-        <span>🚇 ${h.metro}</span>
-      </div>
-      <div class="card-actions">
-        <button class="btn-sm ${inCmp?'in-cmp':''}" onclick="toggleCmp(${h.id})">${inCmp?'✓ 已加入对比':'⇄ 加入对比'}</button>
-        <button class="btn-sm" onclick="quickCalc(${h.pMin})">🧮 算月供</button>
-      </div>
-    </div>`;
+  const list=getFiltered();
+  document.getElementById('result-count').innerHTML=`共 <b>${list.length}</b> 套`;
+  const grid=document.getElementById('house-grid');
+  if(!list.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="ico">🔍</div>没有符合条件的房源<br><small>试试放宽地铁距离或价格区间</small></div>';return}
+  grid.innerHTML=list.map(h=>{
+    const inCmp=cmp.includes(h.id);
+    const badgeCls=h.type==='new'?'badge-new':h.type==='upcoming'?'badge-upcoming':'badge-second';
+    const badgeTxt=h.type==='new'?'新房':h.type==='upcoming'?'即将开盘':'二手';
+    const tagsHtml=h.tags.map(t=>'<span class="tag">'+t+'</span>').join('')+(h.hot?'<span class="tag tag-hot">🔥 热销</span>':'');
+    const metroHtml=h.metroLines.length?h.metroLines.map(l=>'<span class="metro-badge">'+l+'号线</span>').join(''):'' ;
+    const distHtml=h.metroDist>0?'<span class="'+metroDistClass(h.metroDist)+'">'+metroDistText(h.metroDist)+'</span>':'<span class="metro-far">无地铁</span>';
+    return '<div class="card"><div class="card-top"><div><div class="card-name">'+h.name+'<span class="fav '+((favs.has(h.id)?'on':''))+'" onclick="toggleFav('+h.id+')">⭐</span></div><div class="card-loc">📍 '+h.district+' · '+h.audience+'</div></div><span class="badge '+badgeCls+'">'+badgeTxt+'</span></div><div><span class="card-price">'+h.price+'<small> 元/㎡</small></span></div><div class="card-meta">'+h.area+' · '+h.product+'</div><div class="card-tags">'+tagsHtml+'</div><div class="card-points">'+h.points+'</div><div class="card-info"><span>🚇 '+metroHtml+' '+h.metroStation+' '+distHtml+'</span><span>🎓 '+h.school+'</span></div><div class="card-actions"><button class="btn-sm '+((inCmp?'in-cmp':''))+'" onclick="toggleCmp('+h.id+')">'+((inCmp?'✓ 已对比':'⇄ 加入对比'))+'</button><button class="btn-sm" onclick="quickCalc('+h.pMin+')">🧮 算月供</button></div></div>';
   }).join('');
 }
-function renderAll(){ renderFilters(); renderHouses(); }
+function renderAll(){renderFilters();renderHouses()}
 
-/* ================= FAV & COMPARE ================= */
-function toggleFav(id){
-  favs.has(id)? favs.delete(id) : favs.add(id);
-  localStorage.setItem('cs_favs', JSON.stringify([...favs]));
-  renderHouses();
-}
-function toggleCmp(id){
-  if(cmp.includes(id)) cmp = cmp.filter(x=>x!==id);
-  else { if(cmp.length>=3){ alert('最多同时对比 3 个楼盘'); return; } cmp.push(id); }
-  localStorage.setItem('cs_cmp', JSON.stringify(cmp));
-  renderCmpBar(); renderHouses();
-}
-function removeCmp(id){ cmp = cmp.filter(x=>x!==id); localStorage.setItem('cs_cmp',JSON.stringify(cmp)); renderCmpBar(); renderHouses(); }
-function renderCmpBar(){
-  const bar = document.getElementById('cmp-bar');
-  if(!cmp.length){ bar.classList.remove('show'); return; }
-  bar.classList.add('show');
-  document.getElementById('cmp-list').innerHTML = cmp.map(id=>{
-    const h = HOUSES.find(x=>x.id===id);
-    return `<span class="cmp-item">${h.name} <b onclick="removeCmp(${id})">✕</b></span>`;
-  }).join('');
-}
-function openCompare(){
-  if(cmp.length<2){ alert('请至少加入 2 个楼盘再对比'); return; }
-  const hs = cmp.map(id=>HOUSES.find(x=>x.id===id));
-  const rows = [
-    ['楼盘', h=>`<b>${h.name}</b>`],
-    ['类型', h=>h.type==='new'?'新房':'二手房'],
-    ['区域', h=>h.district],
-    ['单价', h=>`<span class="cmp-price">${h.price}</span> 元/㎡`],
-    ['户型面积', h=>h.area],
-    ['产品', h=>h.product],
-    ['特色标签', h=>h.tags.join('、')||'—'],
-    ['学校', h=>h.school],
-    ['交通', h=>h.metro],
-    ['核心卖点', h=>h.points],
-    ['适合人群', h=>h.audience]
-  ];
-  document.getElementById('cmp-table').innerHTML = rows.map(([label,fn])=>
-    `<tr><th>${label}</th>${hs.map(h=>`<td>${fn(h)}</td>`).join('')}</tr>`
-  ).join('');
-  document.getElementById('cmp-modal').classList.add('show');
-}
-function closeCompare(){ document.getElementById('cmp-modal').classList.remove('show'); }
+/* === FAV & CMP === */
+function toggleFav(id){favs.has(id)?favs.delete(id):favs.add(id);localStorage.setItem('cs_favs',JSON.stringify([...favs]));renderHouses()}
+function toggleCmp(id){if(cmp.includes(id))cmp=cmp.filter(x=>x!==id);else{if(cmp.length>=3){alert('最多对比3个');return}cmp.push(id)}localStorage.setItem('cs_cmp',JSON.stringify(cmp));renderCmpBar();renderHouses()}
+function removeCmp(id){cmp=cmp.filter(x=>x!==id);localStorage.setItem('cs_cmp',JSON.stringify(cmp));renderCmpBar();renderHouses()}
+function renderCmpBar(){const bar=document.getElementById('cmp-bar');if(!cmp.length){bar.classList.remove('show');return}bar.classList.add('show');document.getElementById('cmp-list').innerHTML=cmp.map(id=>{const h=HOUSES.find(x=>x.id===id);return '<span class="cmp-item">'+h.name+' <b onclick="removeCmp('+id+')">✕</b></span>'}).join('')}
+function openCompare(){if(cmp.length<2){alert('至少2个楼盘再对比');return}const hs=cmp.map(id=>HOUSES.find(x=>x.id===id));const rows=[['楼盘',h=>'<b>'+h.name+'</b>'],['类型',h=>h.type==='new'?'新房':h.type==='upcoming'?'即将开盘':'二手房'],['区域',h=>h.district],['单价',h=>'<span class="cmp-price">'+h.price+'</span> 元/㎡'],['户型面积',h=>h.area],['产品',h=>h.product],['地铁',h=>h.metroStation+'<br><span class="'+metroDistClass(h.metroDist)+'">'+metroDistText(h.metroDist)+'</span>'],['地铁线路',h=>h.metroLines.map(l=>'<span class="metro-badge">'+l+'号线</span>').join('')||'—'],['学校',h=>h.school],['特色',h=>h.tags.join('、')||'—'],['卖点',h=>h.points],['适合人群',h=>h.audience]];document.getElementById('cmp-table').innerHTML=rows.map(([label,fn])=>'<tr><th>'+label+'</th>'+hs.map(h=>'<td>'+fn(h)+'</td>').join('')+'</tr>').join('');document.getElementById('cmp-modal').classList.add('show')}
+function closeCompare(){document.getElementById('cmp-modal').classList.remove('show')}
 
-/* ================= CHECKLIST ================= */
-let clSeq = 0;
-function clKey(i){ return 'item_'+i; }
-function renderChecklist(){
-  let html = ''; clSeq = 0;
-  CHECKLIST.forEach((c,ci)=>{
-    const start = clSeq;
-    const done = c.items.filter((_,ii)=>clState[clKey(start+ii)]).length;
-    html += `<div class="cl-cat ${ci===0?'open':''}" id="cl-cat-${ci}">
-      <div class="cl-cat-head" onclick="document.getElementById('cl-cat-${ci}').classList.toggle('open')">
-        <h4>${c.cat}</h4><span class="cl-cat-info">${done}/${c.items.length} ▾</span>
-      </div>
-      <div class="cl-items">`;
-    c.items.forEach((it,ii)=>{
-      const k = clKey(clSeq); const checked = !!clState[k];
-      html += `<label class="cl-item ${checked?'done':''}">
-        <input type="checkbox" ${checked?'checked':''} onchange="toggleCl('${k}',this)">
-        <div class="cl-item-body"><div class="cl-item-name">${it[0]}</div><div class="cl-item-desc">${it[1]}</div></div>
-      </label>`;
-      clSeq++;
-    });
-    html += `</div></div>`;
-  });
-  document.getElementById('checklist-wrap').innerHTML = html;
-  updateClProgress();
-}
-function toggleCl(k, input){
-  clState[k] = input.checked;
-  localStorage.setItem('cs_checklist', JSON.stringify(clState));
-  input.closest('.cl-item').classList.toggle('done', input.checked);
-  updateClProgress();
-  // refresh per-cat counter
-  let seq=0;
-  CHECKLIST.forEach((c,ci)=>{
-    const done = c.items.filter((_,ii)=>clState[clKey(seq+ii)]).length;
-    document.querySelector(`#cl-cat-${ci} .cl-cat-info`).textContent = `${done}/${c.items.length} ▾`;
-    seq += c.items.length;
-  });
-}
-function updateClProgress(){
-  const total = clSeq; const done = Object.values(clState).filter(Boolean).length;
-  const pct = total? Math.round(done/total*100) : 0;
-  document.getElementById('cl-fill').style.width = pct+'%';
-  document.getElementById('cl-pct').textContent = pct+'%';
-  document.getElementById('cl-done').textContent = `(${done}/${total} 项)`;
-}
-function resetChecklist(){
-  if(!confirm('确定清空所有打勾记录？')) return;
-  clState = {}; localStorage.removeItem('cs_checklist');
-  renderChecklist();
-}
+/* === CHECKLIST === */
+let clSeq=0;
+function clKey(i){return'item_'+i}
+function renderChecklist(){let html='';clSeq=0;CHECKLIST.forEach((c,ci)=>{const start=clSeq;const done=c.items.filter((_,ii)=>clState[clKey(start+ii)]).length;html+='<div class="cl-cat '+((ci===0?'open':''))+'" id="cl-cat-'+ci+'"><div class="cl-cat-head" onclick="document.getElementById(\'cl-cat-'+ci+'\').classList.toggle(\'open\')"><h4>'+c.cat+'</h4><span class="cl-cat-info">'+done+'/'+c.items.length+' ▾</span></div><div class="cl-items">';c.items.forEach((it,ii)=>{const k=clKey(clSeq);const checked=!!clState[k];html+='<label class="cl-item '+((checked?'done':''))+'"><input type="checkbox" '+((checked?'checked':''))+' onchange="toggleCl(\''+k+'\',this)"><div class="cl-item-body"><div class="cl-item-name">'+it[0]+'</div><div class="cl-item-desc">'+it[1]+'</div></div></label>';clSeq++});html+='</div></div>'});document.getElementById('checklist-wrap').innerHTML=html;updateClProgress()}
+function toggleCl(k,input){clState[k]=input.checked;localStorage.setItem('cs_checklist',JSON.stringify(clState));input.closest('.cl-item').classList.toggle('done',input.checked);updateClProgress();let seq=0;CHECKLIST.forEach((c,ci)=>{const done=c.items.filter((_,ii)=>clState[clKey(seq+ii)]).length;document.querySelector('#cl-cat-'+ci+' .cl-cat-info').textContent=done+'/'+c.items.length+' ▾';seq+=c.items.length})}
+function updateClProgress(){const total=clSeq;const done=Object.values(clState).filter(Boolean).length;const pct=total?Math.round(done/total*100):0;document.getElementById('cl-fill').style.width=pct+'%';document.getElementById('cl-pct').textContent=pct+'%';document.getElementById('cl-done').textContent='('+done+'/'+total+'项)'}
+function resetChecklist(){if(!confirm('确定清空？'))return;clState={};localStorage.removeItem('cs_checklist');renderChecklist()}
 
-/* ================= GUIDE ================= */
-document.getElementById('guide-grid').innerHTML = GUIDE.map(g=>`
-  <div class="guide-card">
-    <h4>${g.name} <span>${g.price} 元/㎡</span></h4>
-    <div class="guide-row"><b>特点：</b>${g.feat}</div>
-    <div class="guide-row"><b>推荐板块：</b>${g.areas}</div>
-    <div class="guide-row"><b>适合：</b>${g.who}</div>
-    <div class="guide-row"><b>建议：</b>${g.advice}</div>
-  </div>`).join('');
+/* === GUIDE === */
+document.getElementById('guide-grid').innerHTML=GUIDE.map(g=>'<div class="guide-card"><h4>'+g.name+' <span>'+g.price+' 元/㎡</span></h4><div class="guide-row"><b>特点：</b>'+g.feat+'</div><div class="guide-row"><b>板块：</b>'+g.areas+'</div><div class="guide-row"><b>适合：</b>'+g.who+'</div><div class="guide-row"><b>建议：</b>'+g.advice+'</div></div>').join('');
 
-/* ================= CALCULATOR ================= */
-function fillTotal(){
-  const p = parseFloat(document.getElementById('c-price').value);
-  const a = parseFloat(document.getElementById('c-area').value);
-  if(p>0 && a>0){ document.getElementById('c-total').value = Math.round(p*a/10000*10)/10; calcLoan(); }
-  else alert('请先输入单价和面积');
-}
-function quickCalc(pMin){
-  document.getElementById('c-price').value = pMin;
-  document.querySelector('.tab[data-tab="calc"]').click();
-  const a = parseFloat(document.getElementById('c-area').value);
-  if(a>0) fillTotal(); else document.getElementById('c-area').focus();
-}
-function fmtWan(v){ return (v/10000).toFixed(1)+' 万'; }
-function calcLoan(){
-  const total = parseFloat(document.getElementById('c-total').value)||0;
-  const downRatio = parseFloat(document.getElementById('c-down').value);
-  const years = parseInt(document.getElementById('c-years').value);
-  const rate = parseFloat(document.getElementById('c-rate').value)||0;
-  const method = document.getElementById('c-method').value;
-  const P = total*10000*(1-downRatio), down = total*10000*downRatio;
-  const n = years*12, r = rate/100/12;
-  let month, interest;
-  if(r===0){ month = P/n; interest = 0; }
-  else if(method==='acm'){
-    const f = Math.pow(1+r,n);
-    month = P*r*f/(f-1);
-    interest = month*n - P;
-  } else {
-    const mp = P/n;
-    const first = mp + P*r;
-    const last = mp + mp*r;
-    month = first;
-    interest = (P*r + mp*r)*n/2;
-  }
-  const totalPay = P + interest;
-  document.getElementById('r-label').textContent = method==='acm'?'每月月供（等额本息）':'首月月供（等额本金，逐月递减）';
-  document.getElementById('r-month').textContent = month.toLocaleString('zh-CN',{maximumFractionDigits:0});
-  document.getElementById('r-down').textContent = fmtWan(down);
-  document.getElementById('r-loan').textContent = fmtWan(P);
-  document.getElementById('r-interest').textContent = fmtWan(interest);
-  document.getElementById('r-all').textContent = fmtWan(totalPay);
-  const extra = document.getElementById('r-extra-line');
-  if(method==='acp' && r>0){
-    const mp = P/n;
-    const last = mp + mp*r;
-    extra.style.display='flex';
-    document.getElementById('r-extra-label').textContent = '末月月供';
-    document.getElementById('r-extra').textContent = last.toLocaleString('zh-CN',{maximumFractionDigits:0})+' 元';
-  } else extra.style.display='none';
-}
+/* === CALC === */
+function fillTotal(){const p=parseFloat(document.getElementById('c-price').value);const a=parseFloat(document.getElementById('c-area').value);if(p>0&&a>0){document.getElementById('c-total').value=Math.round(p*a/10000*10)/10;calcLoan()}else alert('请输入单价和面积')}
+function quickCalc(pMin){document.getElementById('c-price').value=pMin;document.querySelector('.tab[data-tab="calc"]').click();const a=parseFloat(document.getElementById('c-area').value);if(a>0)fillTotal();else document.getElementById('c-area').focus()}
+function fmtWan(v){return(v/10000).toFixed(1)+' 万'}
+function calcLoan(){const total=parseFloat(document.getElementById('c-total').value)||0;const downRatio=parseFloat(document.getElementById('c-down').value);const years=parseInt(document.getElementById('c-years').value);const rate=parseFloat(document.getElementById('c-rate').value)||0;const method=document.getElementById('c-method').value;const P=total*10000*(1-downRatio),down=total*10000*downRatio,n=years*12,r=rate/100/12;let month,interest;if(r===0){month=P/n;interest=0}else if(method==='acm'){const f=Math.pow(1+r,n);month=P*r*f/(f-1);interest=month*n-P}else{const mp=P/n;const first=mp+P*r;month=first;interest=(P*r+mp*r)*n/2}const totalPay=P+interest;document.getElementById('r-label').textContent=method==='acm'?'每月月供（等额本息）':'首月月供（等额本金）';document.getElementById('r-month').textContent=month.toLocaleString('zh-CN',{maximumFractionDigits:0});document.getElementById('r-down').textContent=fmtWan(down);document.getElementById('r-loan').textContent=fmtWan(P);document.getElementById('r-interest').textContent=fmtWan(interest);document.getElementById('r-all').textContent=fmtWan(totalPay);const extra=document.getElementById('r-extra-line');if(method==='acp'&&r>0){const mp=P/n;const last=mp+mp*r;extra.style.display='flex';document.getElementById('r-extra-label').textContent='末月月供';document.getElementById('r-extra').textContent=last.toLocaleString('zh-CN',{maximumFractionDigits:0})+' 元'}else extra.style.display='none'}
 
-/* ================= INIT ================= */
-renderAll();
-renderCmpBar();
-renderChecklist();
-calcLoan();
+/* === INIT === */
+renderAll();renderCmpBar();renderChecklist();calcLoan();
 </script>
 </body>
 </html>
