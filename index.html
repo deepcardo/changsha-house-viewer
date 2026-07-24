@@ -318,24 +318,23 @@ let clState=JSON.parse(localStorage.getItem('cs_checklist')||'{}');
 document.querySelectorAll('.tab').forEach(t=>{t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab-panel').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.getElementById('panel-'+t.dataset.tab).classList.add('active')}});
 
 /* === FILTERS === */
-function buildChips(elId,items,activeVal,onPick,multi=false){
+function buildChips(elId,items,isActive,onPick,multi=false){
   const el=document.getElementById(elId);el.innerHTML='';
   items.forEach(it=>{
     const label=typeof it==='string'?it:it.label;
     const c=document.createElement('span');c.className='chip';c.textContent=label;
-    const isOn=multi?state.tags.has(label):(activeVal===label||(typeof it==='object'&&items.indexOf(it)===state.priceIdx));
-    if(isOn)c.classList.add('on');
+    if(isActive(it))c.classList.add('on');
     c.onclick=()=>{onPick(it,label)};
     el.appendChild(c);
   });
 }
 function renderFilters(){
-  buildChips('f-district',['全部',...DISTRICTS],state.district,(it,l)=>{state.district=l;renderAll()});
-  buildChips('f-type',['全部','新房','即将开盘','二手房'],state.type,(it,l)=>{state.type=l;renderAll()});
-  buildChips('f-price',PRICE_RANGES,'',it=>{state.priceIdx=PRICE_RANGES.indexOf(it);renderAll()});
-  buildChips('f-metro-line',[{line:0,label:'全部'},...METRO_LINES],'',it=>{state.metroLine=it.line;renderAll()});
-  buildChips('f-metro-dist',METRO_DISTS,'',it=>{state.metroDistIdx=METRO_DISTS.indexOf(it);renderAll()});
-  buildChips('f-tag',TAGS,'',(it,l)=>{state.tags.has(l)?state.tags.delete(l):state.tags.add(l);renderAll()},true);
+  buildChips('f-district',['全部',...DISTRICTS],it=>state.district===(typeof it==='string'?it:it.label),(it,l)=>{state.district=l;renderAll()});
+  buildChips('f-type',['全部','新房','即将开盘','二手房'],it=>state.type===(typeof it==='string'?it:it.label),(it,l)=>{state.type=l;renderAll()});
+  buildChips('f-price',PRICE_RANGES,it=>PRICE_RANGES.indexOf(it)===state.priceIdx,it=>{state.priceIdx=PRICE_RANGES.indexOf(it);renderAll()});
+  buildChips('f-metro-line',[{line:0,label:'全部'},...METRO_LINES],it=>it.line===state.metroLine,it=>{state.metroLine=it.line;renderAll()});
+  buildChips('f-metro-dist',METRO_DISTS,it=>METRO_DISTS.indexOf(it)===state.metroDistIdx,it=>{state.metroDistIdx=METRO_DISTS.indexOf(it);renderAll()});
+  buildChips('f-tag',TAGS,it=>state.tags.has(typeof it==='string'?it:it.label),(it,l)=>{state.tags.has(l)?state.tags.delete(l):state.tags.add(l);renderAll()},true);
 }
 document.getElementById('kw').oninput=e=>{state.kw=e.target.value.trim();renderHouses()};
 document.getElementById('sort').onchange=e=>{state.sort=e.target.value;renderHouses()};
